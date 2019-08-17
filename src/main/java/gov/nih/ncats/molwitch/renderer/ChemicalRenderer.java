@@ -90,7 +90,7 @@ public class ChemicalRenderer {
         BufferedImage img = new BufferedImage (width, height, BufferedImage.TYPE_INT_ARGB);
             
         Graphics2D g2 = img.createGraphics();
-        renderer.renderChem (g2, c, width, height, round);
+        render (g2, c,0,0, width, height, round);
         g2.dispose();
     
 

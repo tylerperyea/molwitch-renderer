@@ -399,11 +399,5 @@ import java.util.Map;
 	public abstract void setPaintMode() ;
 	public abstract void setXORMode(ColorParent arg0) ;
 
-	public static void main(String[] args){
-		
-		
-		ColorParent cp = new ColorParent(255,128,0,255);
-		System.out.println(Integer.toHexString(cp.getRGBInt()));
-	}
 
 }

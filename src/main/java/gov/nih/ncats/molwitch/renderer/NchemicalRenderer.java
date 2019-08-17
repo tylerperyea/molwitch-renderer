@@ -18,12 +18,7 @@
 
 package gov.nih.ncats.molwitch.renderer;
 
-import gov.nih.ncats.molwitch.Atom;
-import gov.nih.ncats.molwitch.AtomCoordinates;
-import gov.nih.ncats.molwitch.Bond;
-import gov.nih.ncats.molwitch.Chemical;
-import gov.nih.ncats.molwitch.Chirality;
-import gov.nih.ncats.molwitch.SGroup;
+import gov.nih.ncats.molwitch.*;
 import gov.nih.ncats.molwitch.SGroup.SGroupBracket;
 import gov.nih.ncats.molwitch.SGroup.SGroupType;
 import gov.nih.ncats.molwitch.Bond.BondType;
@@ -351,7 +346,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		maxX = boundingBox.getMaxX();
 		minY = boundingBox.getMinY();
 		maxY = boundingBox.getMaxY();
-		System.out.println("oudning Box =" + boundingBox);
+
 		for (Bond cb : c.getBonds()) {
 			bcount++;
 			Atom[] ca = new Atom[] { cb.getAtom1(), cb.getAtom2() };
@@ -512,7 +507,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 					stereoMap.put(ca, Chirality.valueByParity(value));
 				}
 			}else {
-				stereoMap = c.atoms().filter(a -> a.getChirality() != null)
+				stereoMap = c.getAllStereocenters().stream().filter(Stereocenter::isDefined).map(Stereocenter::getCenterAtom).filter(a -> a.getChirality() != null)
 					.collect(Collectors.toMap(Function.identity(), a -> a.getChirality()));
 			}
 
@@ -526,6 +521,9 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			 }
 		}
 		int atomIndex = -1;
+		Chemical.OpticalActivity opticalActivity = c.computeOpticalActivity().orElse(null);
+		Chemical.StereochemistryType stereochemistryType = c.computeStereochemistryType().orElse(null);
+
 		for (Atom ca : c.getAtoms()) {
 			atomIndex++;
 			boolean drawHydrogens = true;
@@ -605,38 +603,48 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 
 				String attach2 = null;
 				ColorParent ncol = col;
-				switch (stereoMap.get(ca)) {
-				case R:
-					attach2 = "(R)";
-					ncol = STEREO_COLOR_KNOWN;
-					if (assumeStarRelative) {
-						attach2 = "(R*)";
-					}
-					if (!assumeRelative)
-						break;
-				case Parity_Either:
-					attach2 = "(RS)";
-					ncol = STEREO_COLOR_KNOWN;
-					break;
-				case S:
-					attach2 = "(S)";
-					ncol = STEREO_COLOR_KNOWN;
-					if (assumeStarRelative) {
-						attach2 = "(S*)";
-					}
-					if (!assumeRelative)
-						break;
-					// case ChemicalAtom.STEREO_SR:
-					// attach2 = "(SR)";
-					// ncol = STEREO_COLOR_KNOWN;
-					// break;
-				case Unknown:
-					attach2 = "(*)";
-					ncol = STEREO_COLOR_UNKNOWN;
-					break;
-				default:
-				}
+				Chirality chirality = stereoMap.get(ca);
+				if(chirality !=null) {
+					switch (chirality) {
+						case R:
+							attach2 = "(R)";
+							ncol = STEREO_COLOR_KNOWN;
+							if (assumeStarRelative) {
+								attach2 = "(R*)";
+							}
+							if (!assumeRelative)
+								break;
+						case Unknown:
+						case Parity_Either:
+							//from TP: The big thing is that if the molecule is marked as racemic or (+/-) stereochemistry,
+							// //then it's definitely either R or S
+							if (Chemical.StereochemistryType.RACEMIC.equals(stereochemistryType) || Chemical.OpticalActivity.PLUS_MINUS.equals(opticalActivity)) {
+								attach2 = "(RS)";
+								ncol = STEREO_COLOR_KNOWN;
+							} else {
+								attach2 = "(*)";
+								ncol = STEREO_COLOR_UNKNOWN;
+							}
+							break;
+						case S:
+							attach2 = "(S)";
+							ncol = STEREO_COLOR_KNOWN;
+							if (assumeStarRelative) {
+								attach2 = "(S*)";
+							}
+							if (!assumeRelative) {
+								break;
+							}
+							attach2 = "(*)";
+							ncol = STEREO_COLOR_UNKNOWN;
+							// case ChemicalAtom.STEREO_SR:
+							// attach2 = "(SR)";
+							// ncol = STEREO_COLOR_KNOWN;
+							// break;
 
+						default:
+					}
+				}
 				if (attach2 != null) {
 					if (!drawStereoParentheses) {
 						attach2 = attach2.replace("(", "").replace(")", "");
@@ -1003,11 +1011,11 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 
 		g2.setColor(drawColor);
 
-		System.out.println("Before sgroup call BoundingBox = " + BoundingBox.computeBoundingBoxFor(c));
+//		System.out.println("Before sgroup call BoundingBox = " + BoundingBox.computeBoundingBoxFor(c));
 		List<SGroup> cgs = c.getSGroups();
-		System.out.println("sgroups = " + cgs);
-		System.out.println("after sgroup call BoundingBox = " + BoundingBox.computeBoundingBoxFor(c));
-		
+//		System.out.println("sgroups = " + cgs);
+//		System.out.println("after sgroup call BoundingBox = " + BoundingBox.computeBoundingBoxFor(c));
+//
 		if (cgs != null && !cgs.isEmpty()) {
 			g2.setFont(brafont);
 			for (SGroup cg : cgs) {
@@ -1036,7 +1044,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				Rectangle2D.Float nrect = new Rectangle2D.Float(ncoord[0], ncoord[1], 
 						Math.abs(ncoord[4]-ncoord[0]), Math.abs(ncoord[3]-ncoord[1]));
 				// Multiple groups need more padding
-				System.out.println("SgroupType = " + cg.getType());
+//				System.out.println("SgroupType = " + cg.getType());
 //				if (cg.getType() == SGroupType.MULTIPLE) {
 //					Rectangle2D rc = new Rectangle2D.Double(ncoord[2], ncoord[3], ncoord[4] - ncoord[0],
 //							ncoord[5] - ncoord[1]);
@@ -1126,7 +1134,6 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 
 	private static Rectangle2D.Float computeBracketCoordsFor(SGroup cg){
 		Rectangle2D rt;
-		System.out.println("in compute Bracket for " + cg.bracketsSupported());
 		if(cg.bracketsSupported()){
 			
 			//framework implementation supports brackets so use those
@@ -1134,7 +1141,6 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				return null;
 			}
 			if(cg.bracketsTrusted()) {
-				System.out.println("...racketSupported");
 				List<AtomCoordinates> coords = new ArrayList<>(4);
 				for(SGroupBracket b: cg.getBrackets()){
 					coords.add(b.getPoint1());
@@ -1144,7 +1150,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				}
 	//			System.out.println("bracket cords = " + coords);
 				rt =  BoundingBox.computePaddedBoundingBoxForCoordinates(coords, 0);
-				System.out.println("bounding box = " + rt);
+//				System.out.println("bounding box = " + rt);
 				Rectangle2D.Float r = new Rectangle2D.Float((float) rt.getX(),
 						(float) rt.getY(), (float) rt.getWidth(),
 						(float) rt.getHeight());
@@ -1161,7 +1167,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		Rectangle2D.Float r = new Rectangle2D.Float((float) rt.getX(),
 				(float) rt.getY(), (float) rt.getWidth(),
 				(float) rt.getHeight());
-		System.out.println(r);
+//		System.out.println(r);
 		return r;
 	}
 	private static Rectangle2D getBoundsForGroup(List<DisplayLabel> dlist, Iterable<Atom> atoms, Rectangle2D start) {
@@ -1299,7 +1305,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				float[] doubleBPos = new float[2];
 				centerTransform.transform(xy, 5, doubleBPos, 0, 1);
 				// is this the same as double either?
-				if (cb.getDoubleBondStereo() == Bond.DoubleBondStereo.E_OR_Z) {
+				if (cb.getBondType() == BondType.SINGLE_OR_DOUBLE) {
 					xy[4] = -1;
 				}
 
@@ -1382,7 +1388,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				case 3:
 					LineParent line;
 					// is this the same as double either?
-					if (cb.getDoubleBondStereo() == Bond.DoubleBondStereo.E_OR_Z) {
+					if (cb.getBondType() == BondType.SINGLE_OR_DOUBLE) {
 
 						line = ggen.makeLine((dbcx[1] - rat * dxdbl), // x3
 								(dbcy[1] - rat * dydbl), // y3
@@ -1399,7 +1405,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				case 2:
 					LineParent lineb;
 					// is this the same as double either?
-					if (cb.getDoubleBondStereo() == Bond.DoubleBondStereo.E_OR_Z) {
+					if (cb.getBondType() == BondType.SINGLE_OR_DOUBLE) {
 
 						lineb = ggen.makeLine((dbcx[0] - rat * dxdbl), // x1
 								(dbcy[0] - rat * dydbl), // y1
