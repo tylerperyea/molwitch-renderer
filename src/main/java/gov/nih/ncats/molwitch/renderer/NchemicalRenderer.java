@@ -534,7 +534,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			boolean isStereo = false;
 			boolean forceHalo = false;
 
-			String sm = ca.getSymbol();
+			String sm;
 			ColorParent col = drawColor;
 			ColorParent hcol = transparent;
 			List<String> attachments = new ArrayList<String>();
@@ -542,12 +542,12 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			List<Float> attachmentSIZE = new ArrayList<Float>();
 			List<ColorParent> attachmentCOL = new ArrayList<ColorParent>();
 
-			// TODO ignore alias
-			/*
-			 * String sm = ca.getAlias(); if (!sm.equals(ca.getSymbol())) { fakeAtom = true;
-			 * }
-			 * 
-			 */
+
+			sm = ca.getAlias().orElse(ca.getSymbol());
+			if (!sm.equals(ca.getSymbol())) {
+				fakeAtom = true;
+			  }
+
 			// have to make a normal if statement
 			// because can't set effectively final variable sm
 			// in a lambda
@@ -731,7 +731,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			 * g2.setFont(defaultFont.deriveFont(fsize * atomRad)); fm =
 			 * g2.getFontMetrics(); }
 			 */
-			float w = fm.stringWidth(sm) / 2;
+			float w ;//= fm.stringWidth(sm) / 2;
 			Rectangle2D _ERASE_ME = fm.getStringBounds(sm, g2._delagate);
 			Rectangle2DParent rect = ggen.makeRectangle(_ERASE_ME.getX(), _ERASE_ME.getY(), _ERASE_ME.getWidth(),
 					_ERASE_ME.getHeight());
