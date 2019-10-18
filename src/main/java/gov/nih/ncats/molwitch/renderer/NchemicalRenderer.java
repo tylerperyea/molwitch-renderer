@@ -22,6 +22,8 @@ import gov.nih.ncats.molwitch.*;
 import gov.nih.ncats.molwitch.SGroup.SGroupBracket;
 import gov.nih.ncats.molwitch.SGroup.SGroupType;
 import gov.nih.ncats.molwitch.Bond.BondType;
+import gov.nih.ncats.molwitch.isotopes.IsotopeFactory;
+import gov.nih.ncats.molwitch.isotopes.NISTIsotopeFactory;
 import gov.nih.ncats.molwitch.renderer.Graphics2DParent.*;
 import gov.nih.ncats.molwitch.renderer.RendererOptions.DrawOptions;
 import gov.nih.ncats.molwitch.renderer.RendererOptions.DrawProperties;
@@ -56,6 +58,9 @@ import java.util.OptionalInt;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
@@ -194,6 +199,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 
 	public static GeomGenerator ggen = new Graphics2DTemp.AWTGeomGenerator();
 
+
 	/**
 	 * @author peryeata
 	 * 
@@ -220,6 +226,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		// System.out.println("There are " + c.getSGroupCount() + " sgroups");
 
 		ArrayList<double[]> toAdd = new ArrayList<>();
+
 
 		boolean skeleton = false;
 
@@ -275,6 +282,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		
 		boolean forceStereomono = displayParams.getDrawOption(DrawOptions.DRAW_STEREO_FORCE_MONOCHROMATIC);
 				
+		boolean drawSuperatomLabels = displayParams.getDrawOption(DrawOptions.DRAW_SUPERATOMS_AS_LABELS);
 
 		boolean drawAlleneCarbon = true;
 		boolean stereoColoring = true;
@@ -284,8 +292,9 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			
 
 		boolean drawRadius = false;
-		if (!drawSymbols)
+		if (!drawSymbols) {
 			drawRadius = true;
+		}
 		// drawTerminalHydrogens
 		ColorParent STEREO_COLOR_UNKNOWN = new ColorParent(255, 0, 0, 255);
 		ColorParent STEREO_COLOR_KNOWN = new ColorParent(0, 178, 0, 255);
@@ -347,7 +356,35 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		minY = boundingBox.getMinY();
 		maxY = boundingBox.getMaxY();
 
+		Predicate<Bond> drawBond;
+		Predicate<Atom> drawAtom;
+		if(drawSuperatomLabels){
+			Set<Atom> atomsInSgroups = new HashSet<>();
+			Set<Bond> nonCrossingBonds = new HashSet<>();
+			for(SGroup g : c.getSGroups()){
+				if(g.getType() == SGroupType.SUPERATOM_OR_ABBREVIATION){
+					Set<Bond> crossingBonds = g.getBonds().collect(Collectors.toSet());
+					nonCrossingBonds.addAll( g.getAtoms()
+							.flatMap(a->a.getBonds().stream())
+							.filter(b-> !crossingBonds.contains(b))
+							.collect(Collectors.toSet()));
+
+					atomsInSgroups.addAll(g.getAtoms().collect(Collectors.toSet()));
+
+				}
+
+			}
+			drawBond = b-> !nonCrossingBonds.contains(b);
+			drawAtom = a-> !atomsInSgroups.contains(a);
+		}else{
+			drawBond = b->true;
+			drawAtom = a->true;
+		}
+
 		for (Bond cb : c.getBonds()) {
+			if(!drawBond.test(cb)){
+				continue;
+			}
 			bcount++;
 			Atom[] ca = new Atom[] { cb.getAtom1(), cb.getAtom2() };
 			
@@ -525,6 +562,9 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		Chemical.StereochemistryType stereochemistryType = c.computeStereochemistryType().orElse(null);
 
 		for (Atom ca : c.getAtoms()) {
+			if(!drawAtom.test(ca)){
+				continue;
+			}
 			atomIndex++;
 			boolean drawHydrogens = true;
 			boolean forceDraw = false;
@@ -960,14 +1000,17 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 
 			radius = radius * DEF_FONT_GAP_PERCENT;
 
-			atompDProps.put(ca, new AtomDrawProps());
-			atompDProps.get(ca).highlight = highlighted;
-			atompDProps.get(ca).dcolor = col;
-			atompDProps.get(ca).hcolor = hcol;
-			atompDProps.get(ca).radius = radius;
+			AtomDrawProps drawProps = new AtomDrawProps();
+			atompDProps.put(ca, drawProps);
+			drawProps.highlight = highlighted;
+			drawProps.dcolor = col;
+			drawProps.hcolor = hcol;
+			drawProps.radius = radius;
 			g2.setFont(defaultFont.deriveFont(fsize));
 			fm = g2.getFontMetrics();
 		}
+
+
 		g2.setColor(drawColor);
 		if (drawBonds) {
 			BondProps bp = new BondProps();
@@ -1005,11 +1048,47 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				// g2.drawd(s333);
 				dl.bbox = s333;
 			}
-		}
-		g2.setFont(setfont);
-		g2.setStroke(solid);
+			g2.setFont(setfont);
+			g2.setStroke(solid);
 
-		g2.setColor(drawColor);
+			g2.setColor(drawColor);
+
+			if(drawSuperatomLabels){
+				for(SGroup sgroup : c.getSGroups()){
+					if(sgroup.getType() == SGroupType.SUPERATOM_OR_ABBREVIATION){
+						sgroup.getSubscript().ifPresent( text->{
+
+							Optional<Atom> atomToUseCoordsOf = sgroup.getBonds().map(b->{
+								Atom a = b.getAtom1();
+								if(drawAtom.test(a)){
+									return b.getAtom2();
+								}else{
+									return a;
+								}
+							}).findFirst();
+							if(atomToUseCoordsOf.isPresent()){
+								double[] p = new double[2];
+								centerTransform.transform(atomToUseCoordsOf.get().getAtomCoordinates().xy(), 0, p, 0, 1);
+								String formattedText = formatSuperAtomLabel(text);
+
+								FontMetrics metrics = g2.getFontMetrics();
+								int labelWidth = metrics.stringWidth(formattedText);
+								float labelX, labelY;
+								if(text.charAt(0) =='^'){
+									//the atom coord is the END coordinate not the start
+									labelX = (float)(p[0]- labelWidth);
+								}else{
+									labelX = (float)(p[0]);
+								}
+								labelY = (float) (p[1] + metrics.getHeight()/2 );
+								drawString(g2, formattedText, labelX, labelY);
+							}
+
+						});
+					}
+				}
+			}
+		}
 
 //		System.out.println("Before sgroup call BoundingBox = " + BoundingBox.computeBoundingBoxFor(c));
 		List<SGroup> cgs = c.getSGroups();
@@ -1020,6 +1099,10 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			g2.setFont(brafont);
 			for (SGroup cg : cgs) {
 				if(cg == null){
+					continue;
+				}
+				if(cg.getType() == SGroupType.SUPERATOM_OR_ABBREVIATION){
+					//don't use bracket for SuperAtoms
 					continue;
 				}
 				Rectangle2D.Float rect = computeBracketCoordsFor(cg);
@@ -1219,6 +1302,88 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		}
 	}
 
+	private static String formatSuperAtomLabel(String label){
+		StringBuilder builder = new StringBuilder(label);
+		if(builder.charAt(0)=='^'){
+			//convention to reverse text
+//			builder.reverse();
+			builder.deleteCharAt(0);// removes the ^
+			builder = reverseFormula(builder);
+		}
+		//sometimes the text is a formula so turn numbers into subscripts
+		int len = builder.length();
+		for(int i=0; i< len; i++) {
+			builder.setCharAt(i, toSubscriptIfNum(builder.charAt(i)));
+		}
+
+		return builder.toString();
+	}
+
+	private static StringBuilder reverseFormula(StringBuilder builder){
+		Pattern pattern = Pattern.compile("(\\d+)");
+		Matcher m = pattern.matcher(builder.toString());
+
+		// ^CF3  -> F3C
+		int prevPos = builder.length();
+		List<String> elements = new ArrayList<>();
+		List<Integer> numbers = new ArrayList<>();
+		while(m.find()){
+			 addElementsBetween(m.end(), prevPos, elements, builder);
+
+			numbers.add(elements.size());
+			elements.add(m.group(1));
+			prevPos = m.start();
+
+		}
+		addElementsBetween(0, prevPos, elements, builder);
+
+		//swap numbers with prev element
+		for(Integer offset : numbers){
+			//the values in the number list are reversed so
+
+			int next = offset+1;
+			String temp = elements.get(next);
+			elements.set(next,elements.get(offset));
+			elements.set(offset, temp);
+		}
+//		Collections.reverse(elements);
+		StringBuilder reversed = new StringBuilder(builder.length());
+		for(String e : elements){
+			reversed.append(e);
+		}
+		return reversed;
+	}
+
+	private static void addElementsBetween(int start,int end, List<String> elementsSoFar, StringBuilder input){
+		StringBuilder current = new StringBuilder();
+		for(int i= end-1; i>=start; i--){
+			current.insert(0, input.charAt(i));
+			String s = current.toString();
+			if(NISTIsotopeFactory.INSTANCE.getIsotopesFor(s) !=null){
+				elementsSoFar.add(s);
+				current.setLength(0);
+			}
+		}
+		//don't think we need this ?
+//		if(current.length() >0){
+//			elementsSoFar.add(current.toString());
+//		}
+	}
+	private static char toSubscriptIfNum(char c){
+		switch(c){
+			case '0' : return '\u2080';
+			case '1' : return '\u2081';
+			case '2' : return '\u2082';
+			case '3' : return '\u2083';
+			case '4' : return '\u2084';
+			case '5' : return '\u2085';
+			case '6' : return '\u2086';
+			case '7' : return '\u2087';
+			case '8' : return '\u2088';
+			case '9' : return '\u2089';
+			default: return c;
+		}
+	}
 	private static String getSuperScriptChar(int i) {
 
 		switch (i) {
@@ -1287,6 +1452,18 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				float[] rads = new float[2];
 				AtomDrawProps caprop1 = cprops.get(cb.getAtom1());
 				AtomDrawProps caprop2 = cprops.get(cb.getAtom2());
+
+				//if we are filtering out atoms such as when we replace with superatoms in Sgroups
+				//not all atoms will be in this property map but we will still draw
+				//the bond so just re-use the radius of the other side
+
+				if(caprop1 ==null){
+					caprop1 = caprop2;
+
+				}else if(caprop2 == null){
+					caprop2 = caprop1;
+				}
+
 				rads[0] = caprop1.radius;
 				rads[1] = caprop2.radius;
 
