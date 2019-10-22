@@ -1456,7 +1456,9 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				//if we are filtering out atoms such as when we replace with superatoms in Sgroups
 				//not all atoms will be in this property map but we will still draw
 				//the bond so just re-use the radius of the other side
-
+				if(caprop1 ==null && caprop2 ==null){
+					continue;
+				}
 				if(caprop1 ==null){
 					caprop1 = caprop2;
 
