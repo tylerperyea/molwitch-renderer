@@ -20,12 +20,16 @@ package gov.nih.ncats.molwitch.renderer;
 
 import gov.nih.ncats.molwitch.Chemical;
 import gov.nih.ncats.molwitch.MolWitch;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import javax.imageio.ImageIO;
 import java.io.File;
+import java.nio.file.Files;
 
-public class TestRenderSuperAtoms {
+public class TestRenderSGroups {
+
 
     @Test
     public void renderWithSUPAtomLabels() throws Exception{
@@ -41,5 +45,13 @@ public class TestRenderSuperAtoms {
         ChemicalRenderer renderer = new ChemicalRenderer(opts);
         Chemical c = Chemical.parseMol(new File(getClass().getResource("/hasSUPs.mol").getFile()));
         ImageIO.write(renderer.createImage(c, 600), "PNG", new File(MolWitch.getModuleName() +"_withSUP_dontShowSUPLabel.png"));
+    }
+
+    @Test
+    public void renderBrackets() throws Exception{
+        ChemicalRenderer renderer = new ChemicalRenderer();
+        Chemical c = Chemical.parseMol(new File(getClass().getResource("/polymer.mol").getFile()));
+        ImageIO.write(renderer.createImage(c, 600), "PNG", new File(MolWitch.getModuleName() +"_polymerWithBrackets.png"));
+
     }
 }

@@ -88,6 +88,12 @@
            <artifactId>molwitch</artifactId>
            <version>0.5.2</version>
        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>gov.nih.ncats</groupId>-->
+<!--            <artifactId>molwitch-jchem3</artifactId>-->
+<!--            <version>1.0.2</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>gov.nih.ncats</groupId>
             <artifactId>molwitch-jchem3</artifactId>
