@@ -24,12 +24,12 @@
 
     <groupId>gov.nih.ncats</groupId>
     <artifactId>molwitch-renderer</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.4</version>
 
-    <name>ncats-common</name>
+    <name>Molwitch Renderer</name>
 
-    <url>https://spotlite.nih.gov/ncats/ncats-common/</url>
-    <description>Common utility classes used in several NIH/NCATS projects.</description>
+    <url>https://github.com/ncats/molwitch-renderer</url>
+    <description>Chemical Renderer that uses Molwitch</description>
     <organization>
         <name>NIH/NCATS</name>
         <url>https://ncats.nih.gov</url>
@@ -93,6 +93,18 @@
             <artifactId>molwitch-cdk</artifactId>
             <version>1.0.2</version>
             <scope>test</scope>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>gov.nih.ncats</groupId>-->
+<!--            <artifactId>molwitch-jchem3</artifactId>-->
+<!--            <version>1.0.4</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
+        <dependency>
+            <groupId>chemaxon</groupId>
+            <artifactId>jchem</artifactId>
+            <version>1.0.0fake</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>

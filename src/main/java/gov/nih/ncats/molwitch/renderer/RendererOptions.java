@@ -191,10 +191,16 @@ public class RendererOptions {
 	
 	private Function<Chemical, String> bottomCaptionFunction=null;
 	private Function<Chemical, String> topCaptionFunction=null;
+
+	private List<RendererOptionChangeListener> changeListeners = new ArrayList<>();
+
 	public RendererOptions() {
 		_useDefauls();
 	}
-	
+
+	public void addChangeListener(RendererOptionChangeListener listener){
+		changeListeners.add(Objects.requireNonNull(listener));
+	}
 	public List<ColorParent> getHighlightColors(){
 		return Collections.unmodifiableList(new ArrayList<>(highlightColors));
 	}
@@ -206,7 +212,10 @@ public class RendererOptions {
 		highlightColors.add(Objects.requireNonNull(color));
 		return this;
 	}
-	
+
+	private void fireChangeListeners(){
+		changeListeners.forEach(l->l.optionChanged(null));
+	}
 	
 	public RendererOptions setHighlightColors(List<ColorParent> colors) {
 		Optional<?> nullColor= colors.stream().filter(Objects::isNull).findAny();
@@ -214,10 +223,12 @@ public class RendererOptions {
 			throw new NullPointerException("color list can not contain nulls");
 		}
 		highlightColors = new ArrayList<>(colors);
+		fireChangeListeners();
 		return this;
 	}
 	public RendererOptions addHighlightColor(int offset, ColorParent color) {
 		highlightColors.add(offset, Objects.requireNonNull(color));
+		fireChangeListeners();
 		return this;
 	}
 	
@@ -229,6 +240,7 @@ public class RendererOptions {
 	
 	public RendererOptions setDrawOption(DrawOptions option, boolean value) {
 		drawOptions.put(option, value);
+		fireChangeListeners();
 		return this;
 	}
 	
@@ -237,14 +249,17 @@ public class RendererOptions {
 	}
 	public RendererOptions captionBottom(Function<Chemical, String> captionFunction) {
 		this.bottomCaptionFunction = captionFunction;
+		fireChangeListeners();
 		return this;
 	}
 	public RendererOptions captionTop(Function<Chemical, String> captionFunction) {
 		this.topCaptionFunction = captionFunction;
+		fireChangeListeners();
 		return this;
 	}
 	public RendererOptions setDrawPropertyValue(DrawProperties p, double value) {
 		drawProps.put(p, value);
+		fireChangeListeners();
 		return this;
 	}
 	public RendererOptions withSubstructureHighlight() {
@@ -252,7 +267,7 @@ public class RendererOptions {
 		drawOptions.put(DrawOptions.DRAW_HIGHLIGHT_MAPPED, true);
 		drawOptions.put(DrawOptions.DRAW_HIGHLIGHT_WITH_HALO, true);
 		drawOptions.put(DrawOptions.DRAW_HIGHLIGHT_MONOCHROMATIC, true);
-		
+		fireChangeListeners();
 		return this;
 	}
 	
@@ -294,6 +309,18 @@ public class RendererOptions {
 		opts.setDrawPropertyValue(DrawProperties.BOND_STROKE_WIDTH_FRACTION, 0.050D);
 		opts.setDrawPropertyValue(DrawProperties.BOND_DOUBLE_GAP_FRACTION, .15D);
 		opts.setDrawPropertyValue(DrawProperties.ATOM_LABEL_FONT_FRACTION,0.5D);
+		return opts;
+	}
+
+	public static RendererOptions createUSPLike() {
+		RendererOptions opts = new RendererOptions();
+		opts.setDrawOption(DrawOptions.DRAW_GREYSCALE, true);
+		opts.setDrawPropertyValue(DrawProperties.ATOM_LABEL_FONT_FRACTION,0.5D);
+		opts.setDrawPropertyValue(DrawProperties.BOND_STROKE_WIDTH_FRACTION,0.04D);
+		opts.setDrawPropertyValue(DrawProperties.BOND_DOUBLE_GAP_FRACTION,0.23D);
+		opts.setDrawPropertyValue(DrawProperties.BOND_STEREO_WEDGE_ANGLE, Math.PI/24);
+		opts.setDrawPropertyValue(DrawProperties.BOND_STEREO_DASH_NUMBER, 8);
+
 		return opts;
 	}
 	
@@ -350,12 +377,14 @@ public class RendererOptions {
 	
 	public RendererOptions resetToDefaults() {
 		_useDefauls();
+		fireChangeListeners();
 		return this;
 	}
 	
 	public RendererOptions turnOffStereo() {
 		setDrawOption(DrawOptions.DRAW_STEREO_LABELS, false);
 		setDrawOption(DrawOptions.DRAW_STEREO_LABELS_PARENTHESES, false);
+		fireChangeListeners();
 		return this;
 	}
 	
@@ -363,6 +392,7 @@ public class RendererOptions {
 		
 		setDrawOption(DrawOptions.DRAW_STEREO_LABELS, true);
 		setDrawOption(DrawOptions.DRAW_STEREO_LABELS_PARENTHESES, true);
+		fireChangeListeners();
 		return this;
 	}
 	
