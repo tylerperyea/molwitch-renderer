@@ -315,11 +315,12 @@ public class RendererOptions {
 	public static RendererOptions createUSPLike() {
 		RendererOptions opts = new RendererOptions();
 		opts.setDrawOption(DrawOptions.DRAW_GREYSCALE, true);
-		opts.setDrawPropertyValue(DrawProperties.ATOM_LABEL_FONT_FRACTION,0.5D);
+		opts.setDrawPropertyValue(DrawProperties.ATOM_LABEL_FONT_FRACTION,0.494D);
+		opts.setDrawPropertyValue(DrawProperties.ATOM_LABEL_BOND_GAP_FRACTION,1.02D);
 		opts.setDrawPropertyValue(DrawProperties.BOND_STROKE_WIDTH_FRACTION,0.04D);
-		opts.setDrawPropertyValue(DrawProperties.BOND_DOUBLE_GAP_FRACTION,0.23D);
-		opts.setDrawPropertyValue(DrawProperties.BOND_STEREO_WEDGE_ANGLE, Math.PI/24);
-		opts.setDrawPropertyValue(DrawProperties.BOND_STEREO_DASH_NUMBER, 8);
+		opts.setDrawPropertyValue(DrawProperties.BOND_DOUBLE_GAP_FRACTION,0.21D);
+		opts.setDrawPropertyValue(DrawProperties.BOND_STEREO_WEDGE_ANGLE, Math.PI/25);
+		opts.setDrawPropertyValue(DrawProperties.BOND_STEREO_DASH_NUMBER, 7);
 
 		return opts;
 	}
