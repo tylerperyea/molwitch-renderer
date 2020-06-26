@@ -42,6 +42,8 @@ public class TestRendererOptions {
 			assertEquals(prop.defaultValue(), renderer.getDrawPropertyValue(prop), 0.001D);
 		}
 	}
+
+
 	
 	@Test
 	public void overrideDrawOptions() {

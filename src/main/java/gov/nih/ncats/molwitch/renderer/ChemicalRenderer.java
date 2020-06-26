@@ -25,34 +25,86 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.*;
 import gov.nih.ncats.molwitch.Chemical;
 
 public class ChemicalRenderer {
-
+    @JsonIgnore
 	private final NchemicalRenderer renderer;
 	
 	public ChemicalRenderer() {
 		this(RendererOptions.createDefault());
 	}
-	public ChemicalRenderer(RendererOptions options){
+    @JsonCreator
+	public ChemicalRenderer(@JsonProperty("options") RendererOptions options){
 		this.renderer = new NchemicalRenderer(Objects.requireNonNull(options));
 	}
-	public ChemicalRenderer setBackgroundColor(Color bg) {
+    @JsonGetter("color-bg")
+	public String getBackgroundColorARGB(){
+	    return asArgbHex(renderer.getBackgroundColor());
+    }
+    private static String asArgbHex(Color c){
+        if(c ==null){
+            return null;
+        }
+        return Integer.toHexString(c.getRGB());
+    }
+    @JsonIgnore
+    public Color getBackgroundColor(){
+	    return renderer.getBackgroundColor();
+    }
+	@JsonSetter("color-bg")
+    public ChemicalRenderer setBackgroundColorARGB(String argbHex) {
+        return setBackgroundColor(fromArgb(argbHex));
+    }
+
+    private static Color fromArgb(String argbHex) {
+	    if(argbHex ==null){
+	        return null;
+        }
+        return new Color(Integer.parseUnsignedInt(argbHex, 16),true);
+    }
+    @JsonIgnore
+    public ChemicalRenderer setBackgroundColor(Color bg) {
 		this.renderer.setBackgroundColor(bg);
 		return this;
 	}
+    @JsonGetter("color-border")
+    public String getBorderColorARGB(){
+        return asArgbHex(renderer.getBorderColor());
+    }
+    @JsonIgnore
+	public Color getBorderColor(){
+        return renderer.getBorderColor();
+    }
+    @JsonSetter("color-border")
+    public ChemicalRenderer setBorderColorARGB(String argbHex){
+        return setBorderColor(fromArgb(argbHex));
+    }
+    @JsonIgnore
 	public ChemicalRenderer setBorderColor(Color bg) {
 		this.renderer.setBorderColor(bg);
 		return this;
 	}
-	
+	@JsonGetter("options")
 	public RendererOptions getOptions() {
 		return renderer.getOptions();
 	}
+
+	@JsonGetter("add-shadow")
+	public boolean isShadowVisible(){
+	    return renderer.getShadowVisible();
+    }
+    @JsonSetter("add-shadow")
 	public ChemicalRenderer setShadowVisible(boolean visible) {
 		this.renderer.setShadowVisible(visible);
 		return this;
 	}
+    @JsonGetter("add-border")
+    public boolean isBorderVisible(){
+        return renderer.getShadowVisible();
+    }
+    @JsonSetter("add-border")
 	public ChemicalRenderer setBorderVisible(boolean visible) {
 		this.renderer.setBorderVisible(visible);
 		return this;
@@ -96,5 +148,6 @@ public class ChemicalRenderer {
 
          return img;
     } 
-	
+
+
 }

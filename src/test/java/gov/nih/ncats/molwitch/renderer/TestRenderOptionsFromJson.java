@@ -126,4 +126,14 @@ public class TestRenderOptionsFromJson {
         }
         throw new AssertionError(message==null?"values all equal": message);
     }
+
+    @Test
+    public void jacksonSerializer() throws Exception{
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(RendererOptions.createUSPLike());
+        System.out.println(json);
+        RendererOptions actual = mapper.readValue(json, RendererOptions.class);
+        assertValuesEqual(RendererOptions.createUSPLike(), actual);
+
+    }
 }

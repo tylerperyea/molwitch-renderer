@@ -31,6 +31,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import gov.nih.ncats.molwitch.Chemical;
 import gov.nih.ncats.molwitch.renderer.Graphics2DParent.ColorParent;
 
@@ -228,7 +229,7 @@ public class RendererOptions {
 		opts.changeSettings(map);
 		return opts;
 	}
-
+	@JsonValue
 	public Map<String, Object> asNonDefaultMap(){
 		Map<String, Object> map = new HashMap<>();
 		for(Entry<DrawProperties,Double> entry: drawProps.entrySet()){
@@ -243,6 +244,8 @@ public class RendererOptions {
 		}
 		return map;
 	}
+
+
 	public Map<String, Object> asMap(){
 		Map<String, Object> map = new HashMap<>();
 		for(Entry<DrawProperties,Double> entry: drawProps.entrySet()){
