@@ -49,9 +49,27 @@ public class RendererOptions {
 		DRAW_ATOM_COLOR_ON_BONDS(true, "PROP_KEY_DRAW_ATOM_COLOR_ON_BONDS"),
 		DRAW_CONSTANT_DASH_WIDTH(true, "PROP_KEY_DRAW_CONSTANT_DASH_WIDTH"),
 		DRAW_STEREO_DASH_AS_WEDGE(true, "PROP_KEY_DRAW_STEREO_DASH_AS_WEDGE"),
-		
+		/**
+		 *  Show wedge bonds as originating from a small circle (of bond length)
+		 *  instead of a point (which is the default).
+		 *  Allowing this makes wedges more visible in some cases.
+		 */
 		DRAW_WEDGE_AS_POINT(true, "PROP_KEY_DRAW_WEDGE_AS_POINT"),
+		/**
+		 * Should renderer join wedges/single bonds into an extended stylistic form,
+		 * which is often less jarring than the sudden sharp corners from bridgehead/chain wedges in other styles.
+		 *
+		 * <p>when set to {@code false} (default):</p>
+		 * <img src="./doc-files/wedge_join_off.png" />
+		 *
+		 * <p>when set to {@code true} :</p>
+		 * <img src="./doc-files/wedge_join_on.png"/>
+		 *
+		 */
 		DRAW_STEREO_WEDGE_JOIN(false, "PROP_KEY_DRAW_STEREO_WEDGE_JOIN"),
+		/**
+		 * Show the final dash line on dash-wedges when not connecting to a symbol.
+		 */
 		DRAW_STEREO_LAST_DASH_ON_NON_SYMBOLS(true, "PROP_KEY_DRAW_STEREO_LAST_DASH_ON_NON_SYMBOLS"),
 		
 		DRAW_CENTER_NONRING_DOUBLE_BONDS(false, "PROP_KEY_DRAW_CENTER_NONRING_DOUBLE_BONDS"),
