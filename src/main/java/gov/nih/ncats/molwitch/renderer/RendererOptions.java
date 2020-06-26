@@ -124,7 +124,7 @@ public class RendererOptions {
 		BOND_STROKE_WIDTH_FRACTION(.095D, "DEF_STROKE_PERCENT"),
 		BOND_DOUBLE_GAP_FRACTION(.30D, "DEF_DBL_BOND_GAP"),
 		BOND_DOUBLE_LENGTH_FRACTION(2/3D, "DEF_DBL_BOND_DISTANCE"),
-		BOND_STEREO_WEDGE_ANGLE( Math.PI/20, "DEF_WEDGE_ANG"),
+		BOND_STEREO_WEDGE_ANGLE( Math.PI/12, "DEF_WEDGE_ANG"),
 		BOND_OVERLAP_SPACING_FRACTION(1.75D, "DEF_SPLIT_RATIO"),
 		BOND_STEREO_DASH_NUMBER(6, "DEF_NUM_DASH");
 		
@@ -358,6 +358,10 @@ public class RendererOptions {
 		opts.setDrawPropertyValue(DrawProperties.BOND_DOUBLE_GAP_FRACTION,0.21D);
 		opts.setDrawPropertyValue(DrawProperties.BOND_STEREO_WEDGE_ANGLE, Math.PI/25);
 		opts.setDrawPropertyValue(DrawProperties.BOND_STEREO_DASH_NUMBER, 7);
+		
+		opts.setDrawOption(DrawOptions.DRAW_WEDGE_AS_POINT, false);
+		opts.setDrawOption(DrawOptions.DRAW_STEREO_WEDGE_JOIN, true);
+		opts.setDrawOption(DrawOptions.DRAW_STEREO_LAST_DASH_ON_NON_SYMBOLS, false);
 
 		return opts;
 	}
