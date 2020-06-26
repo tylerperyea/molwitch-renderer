@@ -340,6 +340,8 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 //		this.displayParams.DEF_SPLIT_RATIO;
 		final int DEF_NUM_DASH =  (int) this.displayParams.getDrawPropertyValue(DrawProperties.BOND_STEREO_DASH_NUMBER);
 //		this.displayParams.DEF_NUM_DASH;
+		
+		final float Y_DISP_FRAC = (float)  this.displayParams.getDrawPropertyValue(DrawProperties.SUBSCRIPT_Y_DISPLACEMENT_FRACTION);
 
 		final ColorParent[] pallete = this.displayParams.getHighlightColors().stream().toArray(i-> new ColorParent[i]);
 
@@ -979,7 +981,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 						FontMetrics fm2 = g2.getFontMetrics();
 						g2.setFont(ofont);
 
-						Collection<Entry<String, float[]>> smap = getAttachPos(att, w, h, p, fm2, g2, cardPos, nv);
+						Collection<Entry<String, float[]>> smap = getAttachPos(att, w, h, p, fm2, g2, cardPos, nv, Y_DISP_FRAC);
 						if (smap != null) {
 							for (Entry<String, float[]> ent : smap) {
 								DisplayLabel dl = new DisplayLabel(ent.getKey(), fnt2, ent.getValue()[0],
@@ -1613,7 +1615,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 					
 				
 					if(wedgeJoin){
-						if(caprop1.radius<0.0001f && 
+						if(caprop2.radius<0.0001f && 
 						   cb.getAtom2().getBondCount()>1){
 								List<Bond> obonds = cb.getAtom2().getBonds()
 							             .stream()
@@ -1872,7 +1874,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 	}
 
 	private static Collection<Entry<String, float[]>> getAttachPos(String attatch, float w, float h, float[] p,
-			FontMetrics fm, Graphics2DTemp g2, int CARD, float[] nv) {
+			FontMetrics fm, Graphics2DTemp g2, int CARD, float[] nv, float yDISP_FRAC) {
 		if (!attatch.equals("")) {
 			List<Entry<String, float[]>> entryList = new ArrayList<Entry<String, float[]>>();
 
@@ -1923,7 +1925,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				float ydisp = 0;
 
 				if (subScriptSet.contains(res[i] + "")) {
-					ydisp = (float) fm.getStringBounds(res[i] + "", g2._delagate).getHeight() / 5;
+					ydisp = (float) fm.getStringBounds(res[i] + "", g2._delagate).getHeight() * yDISP_FRAC;
 				}
 				float[] aP1 = new float[] { (p[0] - dv[0]) - w + disp, (p[1] + dv[1]) + h + ydisp };
 				disp += (float) fm.getStringBounds(res[i] + "", g2._delagate).getWidth();
