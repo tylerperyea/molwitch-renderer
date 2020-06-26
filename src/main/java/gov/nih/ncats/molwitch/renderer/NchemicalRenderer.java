@@ -22,6 +22,7 @@ import gov.nih.ncats.molwitch.*;
 import gov.nih.ncats.molwitch.SGroup.SGroupBracket;
 import gov.nih.ncats.molwitch.SGroup.SGroupType;
 import gov.nih.ncats.molwitch.Bond.BondType;
+import gov.nih.ncats.molwitch.Bond.DoubleBondStereo;
 import gov.nih.ncats.molwitch.isotopes.IsotopeFactory;
 import gov.nih.ncats.molwitch.isotopes.NISTIsotopeFactory;
 import gov.nih.ncats.molwitch.renderer.Graphics2DParent.*;
@@ -37,6 +38,8 @@ import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.font.GlyphVector;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 import java.io.File;
@@ -252,10 +255,19 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		boolean drawResize = displayParams.getDrawOption(DrawOptions.DRAW_PROPORTION_AVERAGE_BOND_LENGTH);
 				
 		boolean halfColoredBonds = displayParams.getDrawOption(DrawOptions.DRAW_ATOM_COLOR_ON_BONDS);
+		
+		boolean wedgeAsPoint = displayParams.getDrawOption(DrawOptions.DRAW_WEDGE_AS_POINT);
+		
+		boolean wedgeJoin = displayParams.getDrawOption(DrawOptions.DRAW_STEREO_WEDGE_JOIN);
+		
+		
 				
 		boolean PROP_DASH_SPACING = displayParams.getDrawOption(DrawOptions.DRAW_CONSTANT_DASH_WIDTH);
 				
 		boolean DrawDashWedge = displayParams.getDrawOption(DrawOptions.DRAW_STEREO_DASH_AS_WEDGE);
+		
+		boolean drawLastDashLineOnNonSymbols = displayParams.getDrawOption(DrawOptions.DRAW_STEREO_LAST_DASH_ON_NON_SYMBOLS);
+		
 				
 		boolean centerNonRingDoubleBonds = displayParams.getDrawOption(DrawOptions.DRAW_CENTER_NONRING_DOUBLE_BONDS);
 		
@@ -1022,9 +1034,13 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			bp.bondWidth = bondWidth;
 			bp.DEF_SPLIT_RATIO = DEF_SPLIT_RATIO;
 			bp.DrawDashWedge = DrawDashWedge;
+			bp.drawLastDashLineOnNonSymbols = drawLastDashLineOnNonSymbols;
+			
 			bp.PROP_DASH_SPACING = PROP_DASH_SPACING;
 			bp.centerAllDoubleBonds = centerAllDoubleBonds;
 			bp.halfColoredBonds = halfColoredBonds;
+			bp.wedgeAsPoint = wedgeAsPoint;
+			bp.wedgeJoin = wedgeJoin;
 			bp.solidREC = solidREC;
 			bp.maxWedgeWidth = maxW;
 
@@ -1433,6 +1449,9 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		boolean centerAllDoubleBonds;
 		boolean highlightHalo;
 		boolean halfColoredBonds;
+		boolean wedgeAsPoint;
+		boolean wedgeJoin;
+		boolean drawLastDashLineOnNonSymbols;
 
 		Stroke solidREC;
 
@@ -1442,6 +1461,12 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			float resize = (float) Math.abs(centerTransform.getScaleX());
 
 			List<LineParent> paintedLines = new ArrayList<LineParent>();
+			
+			Map<Bond,Point2DParent[]> traps = new HashMap<Bond,Point2DParent[]>();
+			Map<Bond,List<Bond>> toFix = new HashMap<Bond,List<Bond>>();
+			Map<Bond, ColorParent[]> toFixCol = new HashMap<Bond, ColorParent[]>();
+			
+			
 
 			for (int k = 0; k < toAdd.size(); k++) {
 				double[] xy = toAdd.get(k);// toAdd.size()-k-1)
@@ -1544,21 +1569,71 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 
 					}
 				}
+				if(wedgeJoin){
+					if(cb.getBondType().equals(BondType.SINGLE) && cb.getStereo().equals(Bond.Stereo.NONE)){
+						Point2DParent[] pp = new Point2DParent[4];
+						double dnorm = 0.5/Math.sqrt(dx*dx+dy*dy);
+						
+						pp[0]= ggen.makePoint(p1[0]+dy*dnorm*bondWidth, p1[1]-dx*dnorm*bondWidth);
+						pp[1]= ggen.makePoint(p1[0]-dy*dnorm*bondWidth, p1[1]+dx*dnorm*bondWidth);
+						pp[2]= ggen.makePoint(p2[0]-dy*dnorm*bondWidth, p2[1]+dx*dnorm*bondWidth);
+						pp[3]= ggen.makePoint(p2[0]+dy*dnorm*bondWidth, p2[1]-dx*dnorm*bondWidth);
+						traps.put(cb, pp);
+					}
+				}
 
 				switch (typ) {
 				case 5:
 					if (DrawDashWedge) {
+						boolean drawLast=true;
+						if(!drawLastDashLineOnNonSymbols && caprop2.radius<0.0001f){
+							drawLast=false;
+						}
 						drawDash(g2, ggen.makeLine(p1[0], p1[1], p2[0], p2[1]), avpt1, avpt2, wid, (int) (DEF_NUM_DASH),
-								PROP_DASH_SPACING, fromCol, toCol);
+								PROP_DASH_SPACING, fromCol, toCol,drawLast);
+						
 					} else {
 						drawDashLine(g2, ggen.makeLine(p1[0], p1[1], p2[0], p2[1]), avpt1, avpt2, (int) (DEF_NUM_DASH),
 								PROP_DASH_SPACING, fromCol, toCol);
 					}
 					break;
 				case 6:
+					
+					float trapWid=0.0f;
+					
+					if(!wedgeAsPoint){
+						trapWid=bondWidth/2;						
+					}
 
-					drawWedge(g2, ggen.makeLine(p1[0], p1[1], p2[0], p2[1]), avpt1, avpt2, wid, fromCol, toCol);
-
+					Point2DParent[] trap= getWedgeTrapazoid(g2, ggen.makeLine(p1[0], p1[1], p2[0], p2[1]), avpt1, avpt2, wid, trapWid);
+					
+					traps.put(cb, trap);
+					
+					boolean drawWed=true;
+					
+				
+					if(wedgeJoin){
+						if(caprop1.radius<0.0001f && 
+						   cb.getAtom2().getBondCount()>1){
+								List<Bond> obonds = cb.getAtom2().getBonds()
+							             .stream()
+							             .filter(b->!b.equals(cb))
+							             .filter(b->b.getBondType().equals(BondType.SINGLE))
+							             .filter(b->b.getStereo().equals(Bond.Stereo.UP) || b.getStereo().equals(Bond.Stereo.NONE))
+							             .collect(Collectors.toList());
+								if(obonds.size()!=0){
+									toFix.put(cb, obonds);
+									toFixCol.put(cb, new ColorParent[]{fromCol, toCol});
+									drawWed=false;
+								}
+						}
+					}
+					
+					if(drawWed){
+						drawWedge(g2, trap, fromCol, toCol);
+					}
+					
+					
 					break;
 
 				case -1:
@@ -1566,25 +1641,19 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 
 				case 3:
 					LineParent line;
-					// is this the same as double either?
-					if (cb.getBondType() == BondType.SINGLE_OR_DOUBLE) {
-
-						line = ggen.makeLine((dbcx[1] - rat * dxdbl), // x3
-								(dbcy[1] - rat * dydbl), // y3
-								(dbcx[0] + rat * dxdbl), // x2
-								(dbcy[0] + rat * dydbl)); // y2
-					} else {
+					
 						line = ggen.makeLine((dbcx[1] - rat * dxdbl), // x3
 								(dbcy[1] - rat * dydbl), // y3
 								(dbcx[1] + rat * dxdbl), // x4
 								(dbcy[1] + rat * dydbl)); // y4
-					}
-
 					drawLine(g2, line, avpt1, avpt2, fromCol, toCol);
 				case 2:
 					LineParent lineb;
 					// is this the same as double either?
-					if (cb.getBondType() == BondType.SINGLE_OR_DOUBLE) {
+					// No, it's not. It looks like double-either (type 3 in stereo bond type in
+					// molfile) isn't accessible in molwitch
+					
+					if (cb.getDoubleBondStereo().equals(DoubleBondStereo.E_OR_Z)) {
 
 						lineb = ggen.makeLine((dbcx[0] - rat * dxdbl), // x1
 								(dbcy[0] - rat * dydbl), // y1
@@ -1624,6 +1693,77 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				default:
 				}
 			}
+			
+			for(Bond wFix:toFix.keySet()){
+				List<Bond> blist=toFix.get(wFix);
+				
+				Point2DParent[] trap=traps.get(wFix);
+				
+				LineParent l1 = ggen.makeLine(trap[1].getX(), trap[1].getY(), trap[2].getX(), trap[2].getY());
+				LineParent l2 = ggen.makeLine(trap[0].getX(), trap[0].getY(), trap[3].getX(), trap[3].getY());
+				
+				Point2DParent bestA=null;
+				double dA=Double.POSITIVE_INFINITY;
+				Point2DParent bestB=null;
+				double dB=Double.POSITIVE_INFINITY;
+				
+				double dxA = trap[2].getX() - trap[1].getX();
+				double dyA = trap[2].getY() - trap[1].getY();
+				double dxB = trap[3].getX() - trap[0].getX();
+				double dyB = trap[3].getY() - trap[0].getY();
+				
+				for(Bond obond:blist){
+					Point2DParent[] trap2=traps.get(obond);
+					if(trap2!=null){
+						LineParent ol1 = ggen.makeLine(trap2[1].getX(), trap2[1].getY(), trap2[2].getX(), trap2[2].getY());
+						LineParent ol2 = ggen.makeLine(trap2[0].getX(), trap2[0].getY(), trap2[3].getX(), trap2[3].getY());
+						
+						
+						Point2DParent possA1 = intersection(l1,ol1);
+						Point2DParent possA2 = intersection(l1,ol2);
+						double dA1=(possA1!=null)?sqrDistance(trap[1],possA1):0;
+						double dA2=(possA2!=null)?sqrDistance(trap[1],possA2):0;
+						
+						if(dA2>dA1){
+							possA1=possA2;
+							dA1=dA2;
+						}
+						
+						if(dA1<dA){
+							double tdxA = possA1.getX() - trap[1].getX();
+							double tdyA = possA1.getY() - trap[1].getY();
+							if(Math.signum(tdxA) == Math.signum(dxA) && Math.signum(tdyA) == Math.signum(dyA) ){
+							bestA=possA1;
+							dA=dA1;
+							}
+						}
+						
+						
+						Point2DParent possB1 = intersection(l2,ol1);
+						Point2DParent possB2 = intersection(l2,ol2);
+						double dB1=(possB1!=null)?sqrDistance(trap[0],possB1):0;
+						double dB2=(possB2!=null)?sqrDistance(trap[0],possB2):0;
+						
+						if(dB2>dB1){
+							possB1=possB2;
+							dB1=dB2;
+						}
+						if(dB1<dB){
+							double tdxB = possB1.getX() - trap[0].getX();
+							double tdyB = possB1.getY() - trap[0].getY();
+							if(Math.signum(tdxB) == Math.signum(dxB) && Math.signum(tdyB) == Math.signum(dyB) ){
+							bestB=possB1;
+							dB=dB1;
+							}
+						}
+					}
+				}
+				
+				if(bestA!=null)trap[2]=bestA;
+				if(bestB!=null)trap[3]=bestB;
+				drawWedge(g2, trap,toFixCol.get(wFix)[0], toFixCol.get(wFix)[1]);
+			}
+			
 		}
 	}
 
@@ -1882,6 +2022,33 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		}
 		return new LineParent[] { startLine };
 	}
+	
+	
+	private static float ZERO_DISTANCE_TOLERANCE = 0.0001f;
+	
+	 /**
+     * return the intersection point (if any) between two lines
+     */
+    private static Point2DParent intersection (LineParent l1, LineParent l2) {
+        Point2DParent p1 = l1.getP1 (), p2 = l1.getP2 ();
+        Point2DParent p3 = l2.getP1 (), p4 = l2.getP2 ();
+
+        double c = (p1.getX () - p2.getX ()) * (p3.getY () - p4.getY ())
+            - (p1.getY () - p2.getY ()) * (p3.getX () - p4.getX ());
+
+        if (Math.abs (c) < ZERO_DISTANCE_TOLERANCE)
+            return null;
+
+
+        double x = (p1.getX () * p2.getY () - p1.getY () * p2.getX ())
+            * (p3.getX () - p4.getX ()) - (p1.getX () - p2.getX ())
+            * (p3.getX () * p4.getY () - p3.getY () * p4.getX ());
+        double y = (p1.getX () * p2.getY () - p1.getY () * p2.getX ())
+            * (p3.getY () - p4.getY ()) - (p1.getY () - p2.getY ())
+            * (p3.getX () * p4.getY () - p3.getY () * p4.getX ());
+
+        return ggen.makePoint(x / c, y / c);
+    }
 
 	private static boolean pointInCircle(double px, double py, float cir1[]) {
 		double dx = cir1[0] - px;
@@ -1965,46 +2132,64 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		double theta = Math.atan2(dy, dx);
 		return new Point2DParent[] {
 				ggen.makePoint(line.getX1() + mag * Math.cos(theta + ang), line.getY1() + mag * Math.sin(theta + ang)),
-				ggen.makePoint(line.getX1() + mag * Math.cos(theta - ang),
-						line.getY1() + mag * Math.sin(theta - ang)) };
+				ggen.makePoint(line.getX1() + mag * Math.cos(theta - ang), line.getY1() + mag * Math.sin(theta - ang)) 
+				};
 	}
 
-	private static void drawWedge(Graphics2DTemp g, LineParent line, float pt1[], float pt2[], float ang) {
-		drawWedge(g, line, pt1, pt2, ang);
-
-	}
-
-	private static void drawWedge(Graphics2DTemp g, LineParent line, float pt1[], float pt2[], float ang,
-			ColorParent c1, ColorParent c2) {
-		ColorParent c = g.getColor();
-		g.setColor(c1);
+//	private static void drawWedge(Graphics2DTemp g, LineParent line, float pt1[], float pt2[], float ang) {
+//		drawWedge(g, line, pt1, pt2, ang);
+//
+//	}
+	
+	private static Point2DParent[] getWedgeTrapazoid(Graphics2DTemp g, LineParent line, float pt1[], float pt2[], float ang, float startWidth) {
 		line = getBoundedLine(line, pt1, pt2);
 		if (line == null)
-			return;
+			return null;
+		Point2DParent[] ptd = wedgeAngle(line, ang);
+		
+		double dx = line.getX2() -line.getX1();
+		double dy = line.getY2() -line.getY1();
+		double n = 1 / Math.sqrt(dx*dx+dy*dy);
+		
+		double sdx=startWidth*(dy*n);
+		double sdy=-startWidth*(dx*n);
+		
+		Point2DParent[] pp = new Point2DParent[4];
+		pp[0]= ggen.makePoint(line.getX1()+sdx, line.getY1()+sdy);
+		pp[1]= ggen.makePoint(line.getX1()-sdx, line.getY1()-sdy);
+		pp[2]= ggen.makePoint(ptd[0].getX(), ptd[0].getY());
+		pp[3]= ggen.makePoint(ptd[1].getX(), ptd[1].getY());
+		
+		return pp;
+	}
+
+	private static void drawWedge(Graphics2DTemp g, Point2DParent[] trap,
+			ColorParent c1, ColorParent c2) {
+		if(trap==null)return;
+		ColorParent c = g.getColor();
+		g.setColor(c1);
 		boolean split = false;
 		if (c1 != null && c2 != null) {
 			if (!c1.equals(c2)) {
-
 				split = true;
-				//
 			}
 		}
 		GeneralPathParent gp = ggen.makeGeneralPath();
-		Point2DParent[] ptd = wedgeAngle(line, ang);
-
-		gp.moveTo(line.getX1(), line.getY1());
-		gp.lineTo(ptd[0].getX(), ptd[0].getY());
-		gp.lineTo(ptd[1].getX(), ptd[1].getY());
+		
+		
+		gp.moveTo(trap[0].getX(), trap[0].getY());
+		gp.lineTo(trap[1].getX(), trap[1].getY());
+		gp.lineTo(trap[2].getX(), trap[2].getY());
+		gp.lineTo(trap[3].getX(), trap[3].getY());
 		gp.closePath();
 		g.fillP(gp);
 		if (split) {
 			g.setColor(c2);
-			LineParent[] splits = splitLine(line);
-			ptd = wedgeAngle(splits[0], ang);
 			gp = ggen.makeGeneralPath();
-			gp.moveTo(line.getX1(), line.getY1());
-			gp.lineTo(ptd[0].getX(), ptd[0].getY());
-			gp.lineTo(ptd[1].getX(), ptd[1].getY());
+			gp.moveTo(trap[0].getX(), trap[0].getY());
+			gp.lineTo(trap[1].getX(), trap[1].getY());
+			gp.lineTo((trap[2].getX()+trap[1].getX())/2, (trap[2].getY()+trap[1].getY())/2);
+			gp.lineTo((trap[3].getX()+trap[0].getX())/2, (trap[3].getY()+trap[0].getY())/2);
 			gp.closePath();
 			g.fillP(gp);
 		}
@@ -2013,7 +2198,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 	}
 
 	private static void drawDash(Graphics2DTemp g, LineParent line, float pt1[], float pt2[], float ang, int NUMLINE,
-			boolean prop, ColorParent c1, ColorParent c2) {
+			boolean prop, ColorParent c1, ColorParent c2, boolean drawLast) {
 		line = getBoundedLine(line, pt1, pt2);
 		ColorParent c = g.getColor();
 		boolean split = false;
@@ -2040,6 +2225,9 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		Point2DParent[] ptd = wedgeAngle(line, ang);
 
 		for (int i = 0; i <= NUMLINE; i++) {
+			if(!drawLast){
+				if(i==NUMLINE)break;
+			}
 			if (split) {
 				if (i > NUMLINE / 2) {
 					g.setColor(c1);
@@ -2054,11 +2242,11 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		}
 		g.setColor(c);
 	}
-
-	private static void drawDash(Graphics2DTemp g, LineParent line, float pt1[], float pt2[], float ang, int NUMLINE,
-			boolean prop) {
-		drawDash(g, line, pt1, pt2, ang, NUMLINE, prop, null, null);
-	}
+//
+//	private static void drawDash(Graphics2DTemp g, LineParent line, float pt1[], float pt2[], float ang, int NUMLINE,
+//			boolean prop) {
+//		drawDash(g, line, pt1, pt2, ang, NUMLINE, prop, null, null);
+//	}
 
 	private static void drawDashLine(Graphics2DTemp g, LineParent line, float pt1[], float pt2[], int NUMLINE,
 			boolean prop, ColorParent c1, ColorParent c2) {
@@ -2242,6 +2430,10 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 
 	private static double sqrDistance(double c1, double c12, double c2, double c22) {
 		return (c1 - c2) * (c1 - c2) + (c12 - c22) * (c12 - c22);
+	}
+	
+	private static double sqrDistance(Point2DParent p1, Point2DParent p2) {
+		return sqrDistance(p1.getX(),p1.getY(),p2.getX(),p2.getY());
 	}
 
 	private String getRGroupText(int i) {
