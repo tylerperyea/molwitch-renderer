@@ -30,6 +30,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import gov.nih.ncats.molwitch.Chemical;
 import gov.nih.ncats.molwitch.renderer.Graphics2DParent.ColorParent;
 
@@ -198,6 +199,37 @@ public class RendererOptions {
 		_useDefauls();
 	}
 
+	@JsonCreator
+	public static RendererOptions createFromMap(Map<String,?> map){
+		RendererOptions opts = new RendererOptions();
+		opts.changeSettings(map);
+		return opts;
+	}
+
+	public Map<String, Object> asNonDefaultMap(){
+		Map<String, Object> map = new HashMap<>();
+		for(Entry<DrawProperties,Double> entry: drawProps.entrySet()){
+			if(!Objects.equals(entry.getValue(), entry.getKey().defaultValue)) {
+				map.put(entry.getKey().legacyName, entry.getValue());
+			}
+		}
+		for(Entry<DrawOptions,Boolean> entry: drawOptions.entrySet()){
+			if(entry.getKey().defaultValue != entry.getValue().booleanValue()) {
+				map.put(entry.getKey().legacyName, entry.getValue());
+			}
+		}
+		return map;
+	}
+	public Map<String, Object> asMap(){
+		Map<String, Object> map = new HashMap<>();
+		for(Entry<DrawProperties,Double> entry: drawProps.entrySet()){
+			map.put(entry.getKey().legacyName, entry.getValue());
+		}
+		for(Entry<DrawOptions,Boolean> entry: drawOptions.entrySet()){
+			map.put(entry.getKey().legacyName, entry.getValue());
+		}
+		return map;
+	}
 	public void addChangeListener(RendererOptionChangeListener listener){
 		changeListeners.add(Objects.requireNonNull(listener));
 	}
@@ -396,7 +428,7 @@ public class RendererOptions {
 		fireChangeListeners();
 		return this;
 	}
-	
+
 	public RendererOptions changeSettings(Map<String, ?> map) {
 		for(Entry<String, ?> entry: map.entrySet()) {
 			DrawOptions opts = DrawOptions.safeValueOf(entry.getKey());
