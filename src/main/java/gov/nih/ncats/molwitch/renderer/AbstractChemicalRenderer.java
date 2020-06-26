@@ -65,8 +65,8 @@ import gov.nih.ncats.molwitch.Chemical;
 	 float shadowTrans=0.25f;
 	 int shadowOff=5;
 	 boolean borderViz=false;
-	 Color backgroundColor = new Color(0,0,0,0);
-	 Color borderColor=Color.black;
+     ARGBColor backgroundColor = new ARGBColor(0,0,0,0);
+     ARGBColor borderColor=new ARGBColor(Color.black);
 	 Set<String> _displayProperties = new LinkedHashSet<String>();
 
 		
@@ -74,8 +74,8 @@ import gov.nih.ncats.molwitch.Chemical;
 	public abstract void renderChem (Graphics2D g2, Chemical c, int x, int y,int width, int height);
 	
 	
-	public Color getBackgroundColor() {		return backgroundColor;	}
-	public Color getBorderColor() {		return borderColor;	}
+	public ARGBColor getBackgroundColor() {		return backgroundColor;	}
+	public ARGBColor getBorderColor() {		return borderColor;	}
 	public boolean getShadowVisible() {return shadowViz;}
 	public float getShadowRadius() {return shadowRad;}
 	public float getShadowTranslucency() {return shadowTrans;}
@@ -88,8 +88,8 @@ import gov.nih.ncats.molwitch.Chemical;
 	public void setShadowOffset(int o) {shadowOff=o;}
 	
 	public void setBorderVisible(boolean v){borderViz=v;}
-	public void setBorderColor(Color c){borderColor = c;}
-	public void setBackgroundColor(Color color){this.backgroundColor=color;}
+	public void setBorderColor(ARGBColor c){borderColor = c;}
+	public void setBackgroundColor(ARGBColor color){this.backgroundColor=color;}
 	public void setNameVisible(boolean b) {
 		if(b)
 			_displayProperties.add(PROPERTY_NAME);
@@ -195,11 +195,11 @@ import gov.nih.ncats.molwitch.Chemical;
     	        
             //g.setComposite(AlphaComposite.Src);
             //g.fill(shape);
-            g.setPaint(getBackgroundColor());
+            g.setPaint(getBackgroundColor().asColor());
             //g.setComposite(AlphaComposite.SrcAtop);
             g.fill(shape);
 	        if (this.getBorderVisible()) {
-	            g.setPaint(this.getBorderColor());
+	            g.setPaint(this.getBorderColor().asColor());
 	            g.setStroke(new BasicStroke ((float)wid/100,BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND));
 	            double arc = ((float)wid)/4. - (float)wid/50;
 	            shape = new RoundRectangle2D.Double
@@ -207,7 +207,7 @@ import gov.nih.ncats.molwitch.Chemical;
 	            g.draw(shape);
 	        }
         }else {
-        		g.setPaint(getBackgroundColor());
+        		g.setPaint(getBackgroundColor().asColor());
         		g.fillRect(x, y, wid, hit);
         }
 	}

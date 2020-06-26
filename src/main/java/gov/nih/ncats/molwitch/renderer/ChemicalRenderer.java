@@ -40,17 +40,12 @@ public class ChemicalRenderer {
 		this.renderer = new NchemicalRenderer(Objects.requireNonNull(options));
 	}
     @JsonGetter("color-bg")
-	public String getBackgroundColorARGB(){
-	    return asArgbHex(renderer.getBackgroundColor());
+	public ARGBColor getBackgroundColorARGB(){
+	    return renderer.getBackgroundColor();
     }
-    private static String asArgbHex(Color c){
-        if(c ==null){
-            return null;
-        }
-        return Integer.toHexString(c.getRGB());
-    }
+
     @JsonIgnore
-    public Color getBackgroundColor(){
+    public ARGBColor getBackgroundColor(){
 	    return renderer.getBackgroundColor();
     }
 	@JsonSetter("color-bg")
@@ -66,15 +61,15 @@ public class ChemicalRenderer {
     }
     @JsonIgnore
     public ChemicalRenderer setBackgroundColor(Color bg) {
-		this.renderer.setBackgroundColor(bg);
+		this.renderer.setBackgroundColor(new ARGBColor(bg));
 		return this;
 	}
     @JsonGetter("color-border")
-    public String getBorderColorARGB(){
-        return asArgbHex(renderer.getBorderColor());
+    public ARGBColor getBorderColorARGB(){
+        return renderer.getBorderColor();
     }
     @JsonIgnore
-	public Color getBorderColor(){
+	public ARGBColor getBorderColor(){
         return renderer.getBorderColor();
     }
     @JsonSetter("color-border")
@@ -83,7 +78,7 @@ public class ChemicalRenderer {
     }
     @JsonIgnore
 	public ChemicalRenderer setBorderColor(Color bg) {
-		this.renderer.setBorderColor(bg);
+		this.renderer.setBorderColor(new ARGBColor(bg));
 		return this;
 	}
 	@JsonGetter("options")

@@ -34,7 +34,7 @@ public class TestChemicalRendererJson {
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(renderer);
 
-//        System.out.println(json);
+        System.out.println(json);
 
         ChemicalRenderer sut = mapper.readValue(json, ChemicalRenderer.class);
         assertEquals(renderer.getOptions().asNonDefaultMap(), sut.getOptions().asNonDefaultMap());
