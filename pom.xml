@@ -89,10 +89,28 @@
            <version>0.5.2</version>
        </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.11.0</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.11.0</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.11.0</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>gov.nih.ncats</groupId>
             <artifactId>molwitch-cdk</artifactId>
-            <version>1.0.2</version>
-            <scope>test</scope>
+            <version>1.0.3</version>
+<!--            <scope>test</scope>-->
         </dependency>
 <!--        <dependency>-->
 <!--            <groupId>gov.nih.ncats</groupId>-->
@@ -100,12 +118,12 @@
 <!--            <version>1.0.4</version>-->
 <!--            <scope>test</scope>-->
 <!--        </dependency>-->
-        <dependency>
-            <groupId>chemaxon</groupId>
-            <artifactId>jchem</artifactId>
-            <version>1.0.0fake</version>
-            <scope>provided</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>chemaxon</groupId>-->
+<!--            <artifactId>jchem</artifactId>-->
+<!--            <version>1.0.0fake</version>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>

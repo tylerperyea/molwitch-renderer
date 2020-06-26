@@ -1509,7 +1509,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				float[] doubleBPos = new float[2];
 				centerTransform.transform(xy, 5, doubleBPos, 0, 1);
 				// is this the same as double either?
-				if (cb.getBondType() == BondType.SINGLE_OR_DOUBLE) {
+				if (cb.getBondType() == BondType.DOUBLE && cb.getDoubleBondStereo()== Bond.DoubleBondStereo.E_OR_Z) {
 					xy[4] = -1;
 				}
 
@@ -1641,7 +1641,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 
 				case 3:
 					LineParent line;
-					
+
 						line = ggen.makeLine((dbcx[1] - rat * dxdbl), // x3
 								(dbcy[1] - rat * dydbl), // y3
 								(dbcx[1] + rat * dxdbl), // x4
@@ -1650,10 +1650,8 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				case 2:
 					LineParent lineb;
 					// is this the same as double either?
-					// No, it's not. It looks like double-either (type 3 in stereo bond type in
-					// molfile) isn't accessible in molwitch
-					
-					if (cb.getDoubleBondStereo().equals(DoubleBondStereo.E_OR_Z)) {
+
+					if (cb.getBondType() == BondType.DOUBLE && cb.getDoubleBondStereo()== Bond.DoubleBondStereo.E_OR_Z) {
 
 						lineb = ggen.makeLine((dbcx[0] - rat * dxdbl), // x1
 								(dbcy[0] - rat * dydbl), // y1
@@ -1693,6 +1691,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				default:
 				}
 			}
+			
 			
 			for(Bond wFix:toFix.keySet()){
 				List<Bond> blist=toFix.get(wFix);
