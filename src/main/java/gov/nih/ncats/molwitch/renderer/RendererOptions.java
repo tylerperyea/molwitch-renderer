@@ -49,6 +49,11 @@ public class RendererOptions {
 		DRAW_ATOM_COLOR_ON_BONDS(true, "PROP_KEY_DRAW_ATOM_COLOR_ON_BONDS"),
 		DRAW_CONSTANT_DASH_WIDTH(true, "PROP_KEY_DRAW_CONSTANT_DASH_WIDTH"),
 		DRAW_STEREO_DASH_AS_WEDGE(true, "PROP_KEY_DRAW_STEREO_DASH_AS_WEDGE"),
+		
+		DRAW_WEDGE_AS_POINT(true, "PROP_KEY_DRAW_WEDGE_AS_POINT"),
+		DRAW_STEREO_WEDGE_JOIN(false, "PROP_KEY_DRAW_STEREO_WEDGE_JOIN"),
+		DRAW_STEREO_LAST_DASH_ON_NON_SYMBOLS(true, "PROP_KEY_DRAW_STEREO_LAST_DASH_ON_NON_SYMBOLS"),
+		
 		DRAW_CENTER_NONRING_DOUBLE_BONDS(false, "PROP_KEY_DRAW_CENTER_NONRING_DOUBLE_BONDS"),
 		
 		
@@ -353,6 +358,10 @@ public class RendererOptions {
 		opts.setDrawPropertyValue(DrawProperties.BOND_DOUBLE_GAP_FRACTION,0.21D);
 		opts.setDrawPropertyValue(DrawProperties.BOND_STEREO_WEDGE_ANGLE, Math.PI/25);
 		opts.setDrawPropertyValue(DrawProperties.BOND_STEREO_DASH_NUMBER, 7);
+		
+		opts.setDrawOption(DrawOptions.DRAW_WEDGE_AS_POINT, false);
+		opts.setDrawOption(DrawOptions.DRAW_STEREO_WEDGE_JOIN, true);
+		opts.setDrawOption(DrawOptions.DRAW_STEREO_LAST_DASH_ON_NON_SYMBOLS, false);
 
 		return opts;
 	}
