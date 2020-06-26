@@ -1484,7 +1484,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				float[] doubleBPos = new float[2];
 				centerTransform.transform(xy, 5, doubleBPos, 0, 1);
 				// is this the same as double either?
-				if (cb.getBondType() == BondType.SINGLE_OR_DOUBLE) {
+				if (cb.getBondType() == BondType.DOUBLE && cb.getDoubleBondStereo()== Bond.DoubleBondStereo.E_OR_Z) {
 					xy[4] = -1;
 				}
 
@@ -1567,7 +1567,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				case 3:
 					LineParent line;
 					// is this the same as double either?
-					if (cb.getBondType() == BondType.SINGLE_OR_DOUBLE) {
+					if (cb.getBondType() == BondType.DOUBLE && cb.getDoubleBondStereo()== Bond.DoubleBondStereo.E_OR_Z) {
 
 						line = ggen.makeLine((dbcx[1] - rat * dxdbl), // x3
 								(dbcy[1] - rat * dydbl), // y3
@@ -1584,7 +1584,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				case 2:
 					LineParent lineb;
 					// is this the same as double either?
-					if (cb.getBondType() == BondType.SINGLE_OR_DOUBLE) {
+					if (cb.getBondType() == BondType.DOUBLE && cb.getDoubleBondStereo()== Bond.DoubleBondStereo.E_OR_Z) {
 
 						lineb = ggen.makeLine((dbcx[0] - rat * dxdbl), // x1
 								(dbcy[0] - rat * dydbl), // y1
