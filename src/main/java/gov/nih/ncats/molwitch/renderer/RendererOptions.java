@@ -224,6 +224,15 @@ public class RendererOptions {
 		_useDefauls();
 	}
 
+	public RendererOptions copy(){
+		RendererOptions copy = RendererOptions.createFromMap(asNonDefaultMap());
+		List<ColorParent> copyHighlightColors = new ArrayList<>(highlightColors.size());
+		for(ColorParent c : highlightColors){
+			copyHighlightColors.add(c.copy());
+		}
+		return copy;
+	}
+
 	@JsonCreator
 	public static RendererOptions createFromMap(Map<String,?> map){
 		RendererOptions opts = new RendererOptions();

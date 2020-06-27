@@ -44,6 +44,14 @@ public class ChemicalRenderer {
 	    return renderer.getBackgroundColor();
     }
 
+    public ChemicalRenderer copy(){
+		ChemicalRenderer copy = new ChemicalRenderer(renderer.getOptions().copy());
+		copy.setBorderVisible(renderer.getBorderVisible());
+		copy.setShadowVisible(renderer.getShadowVisible());
+		copy.setBackgroundColor(renderer.getBackgroundColor().asColor());
+		copy.setBorderColor(renderer.getBorderColor().asColor());
+		return copy;
+	}
     @JsonIgnore
     public ARGBColor getBackgroundColor(){
 	    return renderer.getBackgroundColor();

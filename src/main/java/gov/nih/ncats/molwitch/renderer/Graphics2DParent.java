@@ -283,6 +283,10 @@ import java.util.Map;
 		public ColorParent(){
 			
 		}
+
+		public ColorParent copy(){
+			return new ColorParent(rgba[0],rgba[1],rgba[2],rgba[3]);
+		}
 		public int[] getRGB(){
 			return new int[]{rgba[0],rgba[1],rgba[2],rgba[3]};
 		}
