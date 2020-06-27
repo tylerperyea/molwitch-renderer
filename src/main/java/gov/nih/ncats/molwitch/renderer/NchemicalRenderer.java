@@ -1643,16 +1643,24 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 
 				case 3:
 					LineParent line;
+					// is this the same as double either?
+					if (cb.getBondType() == BondType.DOUBLE && cb.getDoubleBondStereo()== Bond.DoubleBondStereo.E_OR_Z) {
 
+						line = ggen.makeLine((dbcx[1] - rat * dxdbl), // x3
+								(dbcy[1] - rat * dydbl), // y3
+								(dbcx[0] + rat * dxdbl), // x2
+								(dbcy[0] + rat * dydbl)); // y2
+					} else {
 						line = ggen.makeLine((dbcx[1] - rat * dxdbl), // x3
 								(dbcy[1] - rat * dydbl), // y3
 								(dbcx[1] + rat * dxdbl), // x4
 								(dbcy[1] + rat * dydbl)); // y4
+					}
+
 					drawLine(g2, line, avpt1, avpt2, fromCol, toCol);
 				case 2:
 					LineParent lineb;
 					// is this the same as double either?
-
 					if (cb.getBondType() == BondType.DOUBLE && cb.getDoubleBondStereo()== Bond.DoubleBondStereo.E_OR_Z) {
 
 						lineb = ggen.makeLine((dbcx[0] - rat * dxdbl), // x1
