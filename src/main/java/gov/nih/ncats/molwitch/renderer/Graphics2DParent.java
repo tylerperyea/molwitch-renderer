@@ -336,7 +336,6 @@ import java.util.Map;
 	public abstract void drawString(AttributedCharacterIteratorParent arg0, float arg1,
 			float arg2) ;
 	public abstract void fill(ShapeParent arg0) ;
-	public abstract ColorParent getBackground() ;
 	public abstract CompositeParent getComposite() ;
 	public abstract GraphicsConfigurationParent getDeviceConfiguration() ;
 	public abstract FontRenderContextParent getFontRenderContext() ;
@@ -349,7 +348,7 @@ import java.util.Map;
 	public abstract void rotate(double arg0) ;
 	public abstract void rotate(double arg0, double arg1, double arg2) ;
 	public abstract void scale(double arg0, double arg1) ;
-	public abstract void setBackground(ColorParent arg0) ;
+
 	public abstract void setComposite(CompositeParent arg0) ;
 	public abstract void setPaint(PaintParent arg0) ;
 	public abstract void setRenderingHint(KeyParent arg0, Object arg1) ;
@@ -368,12 +367,10 @@ import java.util.Map;
 	public abstract void dispose() ;
 	public abstract void drawArc(int arg0, int arg1, int arg2, int arg3, int arg4, int arg5) ;
 	public abstract boolean drawImage(ImageParent arg0, int arg1, int arg2, ImageObserverParent arg3) ;
-	public abstract boolean drawImage(ImageParent arg0, int arg1, int arg2, ColorParent arg3,
-			ImageObserverParent arg4) ;
+
 	public abstract boolean drawImage(ImageParent arg0, int arg1, int arg2, int arg3,
 			int arg4, ImageObserverParent arg5) ;
-	public abstract boolean drawImage(ImageParent arg0, int arg1, int arg2, int arg3,
-			int arg4, ColorParent arg5, ImageObserverParent arg6) ;
+
 	public abstract boolean drawImage(ImageParent arg0, int arg1, int arg2, int arg3,
 			int arg4, int arg5, int arg6, int arg7, int arg8, ImageObserverParent arg9) ;
 	public abstract boolean drawImage(ImageParent arg0, int arg1, int arg2, int arg3,
@@ -393,15 +390,14 @@ import java.util.Map;
 			int arg5) ;
 	public abstract ShapeParent getClip() ;
 	public abstract Rectangle2DParent getClipBounds() ;
-	public abstract ColorParent getColor() ;
+
 	public abstract FontParent getFont() ;
 	public abstract FontMetricsParent getFontMetrics(FontParent arg0) ;
 	public abstract void setClip(ShapeParent arg0) ;
 	public abstract void setClip(int arg0, int arg1, int arg2, int arg3) ;
-	public abstract void setColor(ColorParent arg0) ;
+
 	public abstract void setFont(FontParent arg0) ;
 	public abstract void setPaintMode() ;
-	public abstract void setXORMode(ColorParent arg0) ;
 
 
 }
