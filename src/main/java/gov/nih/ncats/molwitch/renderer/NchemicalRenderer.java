@@ -83,10 +83,12 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		try {
 
 			InputStream is = NchemicalRenderer.class.getResourceAsStream("/DejaVuSans.ttf");
-			// Scanner cns = new Scanner(is);
-			// URL defaultImage =
-			// NchemicalRenderer.class.getResource("/gov/nih/ncgc/nchemical/DejaVuSans.ttf");
-			// File fontFile = new File(defaultImage.toURI());
+			
+			
+//          experimental font change, would need some other adjustments
+//			
+//			InputStream is = NchemicalRenderer.class.getResourceAsStream("/WorkSans-Regular.ttf");
+			
 			defaultFont = Font.createFont(Font.TRUETYPE_FONT, is);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1470,7 +1472,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			
 			
 
-			for (int k = 0; k < toAdd.size(); k++) {
+			for (int k = toAdd.size()-1; k >= 0; k--) {
 				double[] xy = toAdd.get(k);// toAdd.size()-k-1)
 
 				Bond cb = c.getBond((int) xy[7]);
