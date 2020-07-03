@@ -31,12 +31,15 @@ public class TestChemicalRendererJson {
         renderer.setShadowVisible(false);
         renderer.setBackgroundColor(Color.red);
 
+        renderer.getOptions().getColorPalette().setAtomColor("S", new ARGBColor(45,45,67));
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(renderer);
 
         System.out.println(json);
 
         ChemicalRenderer sut = mapper.readValue(json, ChemicalRenderer.class);
+
+        System.out.println("========\n"+ mapper.writerWithDefaultPrettyPrinter().writeValueAsString(renderer));
         assertEquals(renderer.getOptions().asNonDefaultMap(), sut.getOptions().asNonDefaultMap());
 
         assertEquals(renderer.isBorderVisible(), sut.isBorderVisible());

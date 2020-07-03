@@ -238,27 +238,7 @@ class Graphics2DTemp{
 			}
 
 		}
-		public class ColorWrapper extends ColorParent{
-			Color _c;
-			public ColorWrapper(Color c){
-				this._c=c;
-			}
-			public Color getColor(){
-				return _c;
-			}
-			@Override
-			public int[] getRGB(){
-				return new int[]{_c.getRed(),_c.getBlue(),_c.getGreen(),_c.getAlpha()};
-			}
-			@Override
-			public boolean equals(ColorParent cp){
-				//System.out.println("Testing:" + cp.getRGBInt() + "?=" + this.getRGBInt());
-				if(cp instanceof ColorWrapper){
-					return ((ColorWrapper)cp).getColor().equals(_c);
-				}
-				return this.getRGBInt() == cp.getRGBInt();
-			}
-		}
+
 		public static class Line2DWrapper extends LineParent{
 			Line2D lin;
 
@@ -1430,9 +1410,7 @@ class Graphics2DTemp{
 		private Color getBackgroundG2D() {
 			return _delagate.getBackground();
 		}
-		public ColorParent getBackground() {
-			return new ColorWrapper(this.getBackgroundG2D());
-		}
+
 		public Shape getClip() {
 			return _delagate.getClip();
 		}
@@ -1453,9 +1431,10 @@ class Graphics2DTemp{
 			return _delagate.getColor();
 		}
 		
-		public ColorParent getColor() {
-			return new ColorWrapper(this.getColorG2D());
-		}
+
+	public ARGBColor getARGBColor() {
+		return new ARGBColor(this.getColorG2D());
+	}
 		
 		public Composite getComposite() {
 			return _delagate.getComposite();
@@ -1528,14 +1507,10 @@ class Graphics2DTemp{
 		private void setBackgroundG2D(Color color) {
 			_delagate.setBackground(color);
 		}
-		public void setBackground(ColorParent c) {
-			if(c instanceof ColorWrapper){
-				setBackgroundG2D(((ColorWrapper)c).getColor());
-			}else{
-				int[] rgb=c.getRGB();
-				setBackgroundG2D(new Color(rgb[0],rgb[1],rgb[2],rgb[3]));
-			}
+		public void setBackground(ARGBColor c) {
+				setBackgroundG2D(c.asColor());
 		}
+
 
 		public void setClip(int x, int y, int width, int height) {
 			_delagate.setClip(x, y, width, height);
@@ -1548,15 +1523,11 @@ class Graphics2DTemp{
 		public void setColorG2D(Color c) {
 			_delagate.setColor(c);
 		}
-		
-		public void setColor(ColorParent c) {
-			if(c instanceof ColorWrapper){
-				setColorG2D(((ColorWrapper)c).getColor());
-			}else{
-				int[] rgb=c.getRGB();
-				setColorG2D(new Color(rgb[0],rgb[1],rgb[2],rgb[3]));
-			}
+
+		public void setColor(ARGBColor c) {
+			setColorG2D(c.asColor());
 		}
+
 
 		public void setComposite(Composite comp) {
 			_delagate.setComposite(comp);

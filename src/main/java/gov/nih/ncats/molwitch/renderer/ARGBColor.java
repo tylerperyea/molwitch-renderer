@@ -22,20 +22,26 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import java.awt.*;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class ARGBColor {
+public final class ARGBColor {
+
+    private static Map<Integer, Color> COLOR_CACHE = new ConcurrentHashMap<>();
+
     private final int argb;
     public ARGBColor(int r, int g, int b){
-        argb = b +
-                (g<<8)+
-                (r<<16);
+        this(r,g,b,255);
     }
     public ARGBColor(int r, int g, int b, int a){
         argb = b +
                 (g<<8)+
                 (r<<16)+
                 (a<<24);
+    }
+    private ARGBColor(int argb){
+        this.argb=argb;
     }
     public ARGBColor(Color color){
         this(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
@@ -50,7 +56,7 @@ public class ARGBColor {
     }
 
     public Color asColor(){
-        return new Color(argb,true);
+        return COLOR_CACHE.computeIfAbsent(argb, v-> new Color(v,true));
     }
 
     @Override
@@ -64,5 +70,10 @@ public class ARGBColor {
     @Override
     public int hashCode() {
         return Objects.hash(argb);
+    }
+
+    public ARGBColor withAlpha(int alpha) {
+
+        return new ARGBColor(alpha << 24 | (argb & 0xffffff));
     }
 }

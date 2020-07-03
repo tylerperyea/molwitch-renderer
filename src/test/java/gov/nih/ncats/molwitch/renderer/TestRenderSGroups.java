@@ -41,6 +41,7 @@ public class TestRenderSGroups {
         Chemical c = Chemical.parseMol(new File(getClass().getResource("/hasSUPs.mol").getFile()));
 
         BufferedImage actual = renderer.createImage(c, 600);
+        ImageIO.write(actual, "PNG", new File(MolWitch.getModuleName() +"actual_withSUP_withSUPTextReversed.png"));
         ImageTestUtil.assertImageDataMatches(
 
                 new File(getClass().getResource("/expected/SGroups/cdk_withSUP_withSUPTextReversed.png").getFile()),

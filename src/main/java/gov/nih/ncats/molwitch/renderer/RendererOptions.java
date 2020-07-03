@@ -33,7 +33,6 @@ import java.util.function.Function;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import gov.nih.ncats.molwitch.Chemical;
-import gov.nih.ncats.molwitch.renderer.Graphics2DParent.ColorParent;
 
 public class RendererOptions {
 
@@ -190,21 +189,7 @@ public class RendererOptions {
 		}
 	}
 	
-	
-	private static final List<ColorParent> DEFAULT_HIGHLIGHT_COLORS=Arrays.asList(
-																	new ColorParent(255,179,179,255),
-																	new ColorParent(194,255,179,255),
-																	new ColorParent(179,209,255,255),
-																	new ColorParent(255,179,224,255),
-																	new ColorParent(240,255,179,255),
-																	new ColorParent(179,255,255,255),
-																	new ColorParent(240,179,255,255),
-																	new ColorParent(255,224,179,255),
-																	new ColorParent(179,255,209,255),
-																	new ColorParent(194,179,255,255),
-																	new ColorParent(255,179,179,255),
-																	new ColorParent(194,255,179,255)
-																	);
+
 		
 	 
 	
@@ -212,8 +197,7 @@ public class RendererOptions {
 	
 	private  final EnumMap<DrawProperties, Double> drawProps = new EnumMap<>(DrawProperties.class);
 	
-	private List<ColorParent> highlightColors = new ArrayList<>(DEFAULT_HIGHLIGHT_COLORS);
-	
+	private ColorPalette colorPalette = new ColorPalette();
 	
 	private Function<Chemical, String> bottomCaptionFunction=null;
 	private Function<Chemical, String> topCaptionFunction=null;
@@ -226,10 +210,6 @@ public class RendererOptions {
 
 	public RendererOptions copy(){
 		RendererOptions copy = RendererOptions.createFromMap(asNonDefaultMap());
-		List<ColorParent> copyHighlightColors = new ArrayList<>(highlightColors.size());
-		for(ColorParent c : highlightColors){
-			copyHighlightColors.add(c.copy());
-		}
 		return copy;
 	}
 
@@ -252,6 +232,10 @@ public class RendererOptions {
 				map.put(entry.getKey().legacyName, entry.getValue());
 			}
 		}
+		Map<String, Object> paletteMap = colorPalette.asNonDefaultMap();
+		if(!paletteMap.isEmpty()){
+			map.put("colorPalette", paletteMap);
+		}
 		return map;
 	}
 
@@ -269,36 +253,17 @@ public class RendererOptions {
 	public void addChangeListener(RendererOptionChangeListener listener){
 		changeListeners.add(Objects.requireNonNull(listener));
 	}
-	public List<ColorParent> getHighlightColors(){
-		return Collections.unmodifiableList(new ArrayList<>(highlightColors));
-	}
 	
-	public int getNumberOfHighlightColors() {
-		return highlightColors.size();
-	}
-	public RendererOptions addHighlightColor(ColorParent color) {
-		highlightColors.add(Objects.requireNonNull(color));
-		return this;
+
+	public ColorPalette getColorPalette(){
+		return colorPalette;
 	}
 
 	private void fireChangeListeners(){
 		changeListeners.forEach(l->l.optionChanged(null));
 	}
 	
-	public RendererOptions setHighlightColors(List<ColorParent> colors) {
-		Optional<?> nullColor= colors.stream().filter(Objects::isNull).findAny();
-		if(nullColor.isPresent()) {
-			throw new NullPointerException("color list can not contain nulls");
-		}
-		highlightColors = new ArrayList<>(colors);
-		fireChangeListeners();
-		return this;
-	}
-	public RendererOptions addHighlightColor(int offset, ColorParent color) {
-		highlightColors.add(offset, Objects.requireNonNull(color));
-		fireChangeListeners();
-		return this;
-	}
+
 	
 	
 	
@@ -446,7 +411,7 @@ public class RendererOptions {
 			drawProps.put(o, o.defaultValue());
 		}
 		
-		highlightColors = new ArrayList<>(DEFAULT_HIGHLIGHT_COLORS);
+		colorPalette = new ColorPalette();
 	}
 	
 	public RendererOptions resetToDefaults() {
@@ -472,6 +437,10 @@ public class RendererOptions {
 
 	public RendererOptions changeSettings(Map<String, ?> map) {
 		for(Entry<String, ?> entry: map.entrySet()) {
+			if("colorPalette".equals(entry.getKey())){
+				this.colorPalette = ColorPalette.createFromMap((Map<String,Object>)entry.getValue());
+				continue;
+			}
 			DrawOptions opts = DrawOptions.safeValueOf(entry.getKey());
 			if(opts ==null) {
 				DrawProperties props = DrawProperties.safeValueOf(entry.getKey());
@@ -483,11 +452,13 @@ public class RendererOptions {
 					}
 				}
 			}else {
+
 				if(Boolean.class.isAssignableFrom(entry.getValue().getClass())){
 					setDrawOption(opts, ((Boolean) entry.getValue()).booleanValue());
 				}else if(String.class.isAssignableFrom(entry.getValue().getClass())){
 					setDrawOption(opts,Boolean.parseBoolean((String)entry.getValue()));
 				}
+
 				
 			}
 		}

@@ -75,7 +75,7 @@ import javax.imageio.ImageIO;
  * @author katzelda Refactored + ported over for Chemkit
  */
 class NchemicalRenderer extends AbstractChemicalRenderer {
-	public static final ColorParent transparent = new ColorParent(0, 0, 0, 0);
+	public static final ARGBColor transparent = new ARGBColor(0, 0, 0, 0);
 	private String protProperty = "AMINO_ACID_SEQUENCE";
 	private static Font defaultFont;
 
@@ -99,35 +99,9 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 
 	private static Set<String> FORCE_LEFT_HYDROGEN = new HashSet<String>();
 
-	private static Map<String, ColorParent> atomColors = new HashMap<String, ColorParent>();
 	static {
-		atomColors.put("Cl", new ColorParent(54, 180, 73, 255));
-		atomColors.put("F", new ColorParent(54, 180, 73, 255));
-		atomColors.put("P", new ColorParent(230, 219, 69, 255));
-		atomColors.put("S", new ColorParent(143, 160, 48, 255));
-		atomColors.put("Br", new ColorParent(115, 84, 35, 255));
-		atomColors.put("C", new ColorParent(58, 58, 58, 255));
-		atomColors.put("N", new ColorParent(93, 69, 230, 255));
-		atomColors.put("O", new ColorParent(230, 93, 69, 255));
-		atomColors.put("H", new ColorParent(58, 58, 58, 255));
-		atomColors.put("Na", new ColorParent(48, 143, 160, 255));
-		atomColors.put("I", new ColorParent(230, 69, 205, 255));
-		/*
-		 * 
-		 * atomColors.put("C", Color.DARK_GRAY); atomColors.put("H", Color.DARK_GRAY);
-		 * atomColors.put("O", Color.red); atomColors.put("N", Color.blue);
-		 * atomColors.put("S", Color.yellow.darker()); atomColors.put("P",
-		 * Color.ORANGE); atomColors.put("Cl", new Color(0, 200, 0));
-		 * atomColors.put("F", new Color(0, 200, 0)); atomColors.put("I",
-		 * Color.MAGENTA); atomColors.put("Na", Color.cyan.darker());
-		 * atomColors.put("Br", new Color(128, 60, 0)); float[] hsb = new float[3]; for
-		 * (String key : atomColors.keySet()) { Color oldC = atomColors.get(key);
-		 * Color.RGBtoHSB(oldC.getRed(), oldC.getGreen(), oldC.getBlue(), hsb); oldC =
-		 * Color .getHSBColor(hsb[0] + .025f, hsb[1] * .7f, hsb[2] * .9f);
-		 * atomColors.put(key, oldC); System.out.println("atomColors.put(\"" + key +
-		 * "\", new Color(" + oldC.getRed() +","+ oldC.getGreen() +","+
-		 * oldC.getBlue()+","+ oldC.getAlpha() +"));"); }
-		 */
+
+
 		FORCE_LEFT_HYDROGEN.add("O");
 		FORCE_LEFT_HYDROGEN.add("Cl");
 		FORCE_LEFT_HYDROGEN.add("S");
@@ -152,7 +126,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		subScriptSet.addAll(subScripts.values());
 	}
 
-	private ColorParent drawColor = atomColors.get("C");// new Color (45, 45, 45);
+
 	private RendererOptions displayParams;
 
 	public NchemicalRenderer(RendererOptions options) {
@@ -178,7 +152,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 	}
 
 	public void renderProt(Graphics2DTemp g2, String seq, int x, int y, int width, int height) {
-		g2.setColor(new ColorParent(0, 0, 0, 255));
+		g2.setColor(new ARGBColor(0, 0, 0, 255));
 		Font f = new Font("Monospaced", Font.PLAIN, 12);
 		g2.setFont(f);
 		FontMetrics fm = g2.getFontMetrics();
@@ -310,20 +284,8 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			drawRadius = true;
 		}
 		// drawTerminalHydrogens
-		ColorParent STEREO_COLOR_UNKNOWN = new ColorParent(255, 0, 0, 255);
-		ColorParent STEREO_COLOR_KNOWN = new ColorParent(0, 178, 0, 255);
 
-		/*
-		 * PROP_KEYS_VALUES.put( PROP_KEY_BOND_EXPECTED_LENGTH,DEF_BOND_AVG );
-			 PROP_KEYS_VALUES.put( PROP_KEY_BOND_STROKE_WIDTH_FRACTION,DEF_STROKE_PERCENT );
-			 PROP_KEYS_VALUES.put( PROP_KEY_ATOM_LABEL_FONT_FRACTION,DEF_FONT_PERCENT );
-			 PROP_KEYS_VALUES.put( PROP_KEY_BOND_DOUBLE_GAP_FRACTION,DEF_DBL_BOND_GAP );
-			 PROP_KEYS_VALUES.put( PROP_KEY_BOND_DOUBLE_LENGTH_FRACTION,DEF_DBL_BOND_DISTANCE );
-			 PROP_KEYS_VALUES.put( PROP_KEY_ATOM_LABEL_BOND_GAP_FRACTION,DEF_FONT_GAP_PERCENT );
-			 PROP_KEYS_VALUES.put( PROP_KEY_BOND_STEREO_WEDGE_ANGLE,DEF_WEDGE_ANG );
-			 PROP_KEYS_VALUES.put( PROP_KEY_BOND_OVERLAP_SPACING_FRACTION,DEF_SPLIT_RATIO );
-			 PROP_KEYS_VALUES.put( PROP_KEY_BOND_STEREO_DASH_NUMBER,DEF_NUM_DASH );
-		 */
+
 		final float DEF_BOND_AVG = (float) this.displayParams.getDrawPropertyValue(DrawProperties.BOND_EXPECTED_LENGTH);
 		final float DEF_STROKE_PERCENT = (float) this.displayParams.getDrawPropertyValue(DrawProperties.BOND_STROKE_WIDTH_FRACTION);
 //		this.displayParams.DEF_STROKE_PERCENT;
@@ -344,8 +306,11 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 //		this.displayParams.DEF_NUM_DASH;
 		
 		final float Y_DISP_FRAC = (float)  this.displayParams.getDrawPropertyValue(DrawProperties.SUBSCRIPT_Y_DISPLACEMENT_FRACTION);
+		final ColorPalette colorPalette = this.displayParams.getColorPalette();
 
-		final ColorParent[] pallete = this.displayParams.getHighlightColors().stream().toArray(i-> new ColorParent[i]);
+		final List<ARGBColor> highlightColors = this.displayParams.getColorPalette().getHighlightColors();
+
+		ARGBColor drawColor = colorPalette.getAtomColor("C");
 
 		final float HALO_RADIUS_MULTIPLY = .20f;
 		final float HALO_RADIUS_FUDGE = .5f;
@@ -591,12 +556,12 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			boolean forceHalo = false;
 
 			String sm;
-			ColorParent col = drawColor;
-			ColorParent hcol = transparent;
+			ARGBColor col = drawColor;
+			ARGBColor hcol = transparent;
 			List<String> attachments = new ArrayList<String>();
 			List<Integer> attachmentLOC = new ArrayList<Integer>();
 			List<Float> attachmentSIZE = new ArrayList<Float>();
-			List<ColorParent> attachmentCOL = new ArrayList<ColorParent>();
+			List<ARGBColor> attachmentCOL = new ArrayList<>();
 
 
 			sm = ca.getAlias().orElse(ca.getSymbol());
@@ -636,9 +601,9 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 //					System.out.println("map > 0 = " + map);
 					
 					if (!highlightMonochromatic) { 
-						col= pallete[map%pallete.length]; 
+						col= highlightColors.get(map%highlightColors.size());
 						} else {
-							col = pallete[2]; 
+							col = highlightColors.get(2);
 							} 
 					if(highlightShowAtom) {
 						forceDraw = true; 
@@ -649,7 +614,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				 
 			} else {
 				if (drawColorScheme) {
-					col = getColorForSymbol(sm);
+					col = colorPalette.getAtomColor(sm);
 				}
 			}
 			if (drawStereoLabels) {
@@ -658,13 +623,13 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				}
 
 				String attach2 = null;
-				ColorParent ncol = col;
+				ARGBColor ncol = col;
 				Chirality chirality = stereoMap.get(ca);
 				if(chirality !=null) {
 					switch (chirality) {
 						case R:
 							attach2 = "(R)";
-							ncol = STEREO_COLOR_KNOWN;
+							ncol = colorPalette.getStereoColorKnown();
 							if (assumeStarRelative) {
 								attach2 = "(R*)";
 							}
@@ -676,15 +641,15 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 							// //then it's definitely either R or S
 							if (Chemical.StereochemistryType.RACEMIC.equals(stereochemistryType) || Chemical.OpticalActivity.PLUS_MINUS.equals(opticalActivity)) {
 								attach2 = "(RS)";
-								ncol = STEREO_COLOR_KNOWN;
+								ncol = colorPalette.getStereoColorKnown();
 							} else {
 								attach2 = "(*)";
-								ncol = STEREO_COLOR_UNKNOWN;
+								ncol = colorPalette.getStereoColorUnknown();
 							}
 							break;
 						case S:
 							attach2 = "(S)";
-							ncol = STEREO_COLOR_KNOWN;
+							ncol = colorPalette.getStereoColorKnown();
 							if (assumeStarRelative) {
 								attach2 = "(S*)";
 							}
@@ -692,7 +657,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 								break;
 							}
 							attach2 = "(*)";
-							ncol = STEREO_COLOR_UNKNOWN;
+							ncol = colorPalette.getStereoColorUnknown();
 							// case ChemicalAtom.STEREO_SR:
 							// attach2 = "(SR)";
 							// ncol = STEREO_COLOR_KNOWN;
@@ -722,11 +687,12 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 						// should restrict full atom highlight for
 						// small images
 						if (stereoColoring) {
-							if (highlightShowAtom)
+							if (highlightShowAtom) {
 								forceDraw = true;
+							}
 							highlighted = true;
-							int[] cc = ncol.getRGB();
-							col = new ColorParent(cc[0], cc[1], cc[2], 55);
+
+							col = ncol.withAlpha( 55);
 							forceHalo = true;
 						}
 						attachments.add(attach2);
@@ -962,7 +928,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 					for (int j = 0; j < attachments.size(); j++) {
 						String att = attachments.get(j);
 						float size = attachmentSIZE.get(j);
-						ColorParent acol = attachmentCOL.get(j);
+						ARGBColor acol = attachmentCOL.get(j);
 						int supported = attachmentLOC.get(j);
 						int cardPos = supported;
 
@@ -1292,10 +1258,10 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		String lab;
 		float x;
 		float y;
-		ColorParent c;
+		ARGBColor c;
 		Atom atomGroup = null;
 
-		public DisplayLabel(String lab, Font f, float x, float y, ColorParent c) {
+		public DisplayLabel(String lab, Font f, float x, float y, ARGBColor c) {
 			this.dfont = f;
 			this.lab = lab;
 			this.x = x;
@@ -1433,8 +1399,8 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 
 	private static class AtomDrawProps {
 		float radius;
-		ColorParent hcolor;
-		ColorParent dcolor;
+		ARGBColor hcolor;
+		ARGBColor dcolor;
 		boolean highlight;
 
 	}
@@ -1461,14 +1427,14 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 
 		private void drawBonds(Graphics2DTemp g2, Chemical c, List<double[]> toAdd, Stroke solid, Stroke dashed,
 				AffineTransformParent centerTransform, Map<Atom, AtomDrawProps> cprops) {
-			ColorParent drawColor = g2.getColor();
+			ARGBColor drawColor = g2.getARGBColor();
 			float resize = (float) Math.abs(centerTransform.getScaleX());
 
-			List<LineParent> paintedLines = new ArrayList<LineParent>();
+			List<LineParent> paintedLines = new ArrayList<>();
 			
-			Map<Bond,Point2DParent[]> traps = new HashMap<Bond,Point2DParent[]>();
-			Map<Bond,List<Bond>> toFix = new HashMap<Bond,List<Bond>>();
-			Map<Bond, ColorParent[]> toFixCol = new HashMap<Bond, ColorParent[]>();
+			Map<Bond,Point2DParent[]> traps = new HashMap<>();
+			Map<Bond,List<Bond>> toFix = new HashMap<>();
+			Map<Bond, ARGBColor[]> toFixCol = new HashMap<>();
 			
 			
 
@@ -1554,8 +1520,8 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 					xy[4] = Bond.BondType.DOUBLE.getOrder();
 				}
 
-				ColorParent fromCol = drawColor;
-				ColorParent toCol = drawColor;
+				ARGBColor fromCol = drawColor;
+				ARGBColor toCol = drawColor;
 				int typ = (int) xy[4];
 				if (halfColoredBonds) {
 					if (highlightHalo) {
@@ -1627,7 +1593,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 							             .collect(Collectors.toList());
 								if(obonds.size()!=0){
 									toFix.put(cb, obonds);
-									toFixCol.put(cb, new ColorParent[]{fromCol, toCol});
+									toFixCol.put(cb, new ARGBColor[]{fromCol, toCol});
 									drawWed=false;
 								}
 						}
@@ -2082,11 +2048,11 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		return nline1;
 	}
 
-	private static LineParent drawLine(Graphics2DTemp g, LineParent line, float pt1[], float pt2[], ColorParent c1,
-			ColorParent c2) {
+	private static LineParent drawLine(Graphics2DTemp g, LineParent line, float pt1[], float pt2[], ARGBColor c1,
+			ARGBColor c2) {
 
 		line = getBoundedLine(line, pt1, pt2);
-		ColorParent c = g.getColor();
+		ARGBColor c = g.getARGBColor();
 		if (line != null) {
 			if (c1.equals(c2)) {
 				g.setColor(c1);
@@ -2099,7 +2065,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 					LineParent tmp = splits[0];
 					splits[0] = splits[1];
 					splits[1] = tmp;
-					ColorParent tcol = c2;
+					ARGBColor tcol = c2;
 					c2 = c1;
 					c1 = tcol;
 				}
@@ -2175,9 +2141,11 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 	}
 
 	private static void drawWedge(Graphics2DTemp g, Point2DParent[] trap,
-			ColorParent c1, ColorParent c2) {
-		if(trap==null)return;
-		ColorParent c = g.getColor();
+			ARGBColor c1, ARGBColor c2) {
+		if(trap==null){
+			return;
+		}
+		ARGBColor c = g.getARGBColor();
 		g.setColor(c1);
 		boolean split = false;
 		if (c1 != null && c2 != null) {
@@ -2209,9 +2177,9 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 	}
 
 	private static void drawDash(Graphics2DTemp g, LineParent line, float pt1[], float pt2[], float ang, int NUMLINE,
-			boolean prop, ColorParent c1, ColorParent c2, boolean drawLast) {
+			boolean prop, ARGBColor c1, ARGBColor c2, boolean drawLast) {
 		line = getBoundedLine(line, pt1, pt2);
-		ColorParent c = g.getColor();
+		ARGBColor c = g.getARGBColor();
 		boolean split = false;
 		// if(c1!=null && c2!=null){
 		// System.out.println(c1 + " ?=" + c2);
@@ -2260,10 +2228,10 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 //	}
 
 	private static void drawDashLine(Graphics2DTemp g, LineParent line, float pt1[], float pt2[], int NUMLINE,
-			boolean prop, ColorParent c1, ColorParent c2) {
+			boolean prop, ARGBColor c1, ARGBColor c2) {
 		line = getBoundedLine(line, pt1, pt2);
 		// System.out.println("LINE DASH");
-		ColorParent c = g.getColor();
+		ARGBColor c = g.getARGBColor();
 		g.setColor(c2);
 
 		if (line == null)
@@ -2304,12 +2272,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		g.setColor(c);
 	}
 
-	private ColorParent getColorForSymbol(String sym) {
-		ColorParent col = atomColors.get(sym);
-		if (col == null)
-			col = this.drawColor;
-		return col;
-	}
+
 
 	private static LineParent lineCircleIntersections(LineParent line, float Cx, float Cy, float R) {
 		// if(true)return line;
