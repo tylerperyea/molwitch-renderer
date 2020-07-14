@@ -123,8 +123,8 @@ public class RendererOptions {
 		 * but if the given String input is not an enum value
 		 * then it will return null instead of throwing an exception.
 		 * 
-		 * @param name
-		 * @return
+		 * @param name the value to parse the Draw option name of.
+		 * @return the {@link DrawOptions} for this name or {@code null}.
 		 */
 		public static DrawOptions safeValueOf(String name) {
 			return nameMap.get(name);
@@ -178,8 +178,8 @@ public class RendererOptions {
 		 * but if the given String input is not an enum value
 		 * then it will return null instead of throwing an exception.
 		 * 
-		 * @param name
-		 * @return
+		 *@param name the value to parse the draw property name of.
+         *@return the {@link DrawProperties} for this name or {@code null}.
 		 */
 		public static DrawProperties safeValueOf(String name) {
 			return nameMap.get(name);
