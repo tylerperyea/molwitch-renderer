@@ -330,6 +330,13 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 
 		float BONDAVG = 0f;
 		int bcount = 0;
+		if(!c.hasCoordinates()){
+            try {
+                c.generateCoordinates();
+            } catch (ChemkitException e) {
+//                e.printStackTrace();
+            }
+        }
 		Rectangle2D boundingBox = BoundingBox.computeBoundingBoxFor(c);
 		
 		minX = boundingBox.getMinX();
