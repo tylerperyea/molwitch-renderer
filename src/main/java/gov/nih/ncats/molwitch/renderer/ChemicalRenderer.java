@@ -127,7 +127,7 @@ public class ChemicalRenderer {
 
 	}
 	public BufferedImage createImage (String inputMol, int size) throws IOException{
-		return createImage (Chemical.parseMol(inputMol), size, size, true);
+		return createImage (Chemical.parse(inputMol), size, size, true);
 	}
 	public BufferedImage createImage (File inputMol, int size) throws IOException{
 		return createImage (Chemical.parseMol(inputMol), size, size, true);
@@ -139,7 +139,7 @@ public class ChemicalRenderer {
 	    return createImage(Chemical.parseMol(inputMol), width, height, round);
 	}
 	public BufferedImage createImage (String inputMol, int width, int height, boolean round) throws IOException{
-	    return createImage(Chemical.parseMol(inputMol), width, height, round);
+	    return createImage(Chemical.parse(inputMol), width, height, round);
 	}
 	public BufferedImage createImage (Chemical c, int width, int height, boolean round) {
         BufferedImage img = new BufferedImage (width, height, BufferedImage.TYPE_INT_ARGB);
