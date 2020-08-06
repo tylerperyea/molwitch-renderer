@@ -24,7 +24,7 @@
 
     <groupId>gov.nih.ncats</groupId>
     <artifactId>molwitch-renderer</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
 
     <name>Molwitch Renderer</name>
 
@@ -86,7 +86,7 @@
        <dependency>
            <groupId>gov.nih.ncats</groupId>
            <artifactId>molwitch</artifactId>
-           <version>0.5.4</version>
+           <version>0.5.9</version>
        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -106,24 +106,24 @@
             <version>2.11.0</version>
             <optional>true</optional>
         </dependency>
-        <dependency>
-            <groupId>gov.nih.ncats</groupId>
-            <artifactId>molwitch-cdk</artifactId>
-            <version>1.0.3</version>
-            <scope>test</scope>
-        </dependency>
-<!--        <dependency>-->
-<!--            <groupId>gov.nih.ncats</groupId>-->
-<!--            <artifactId>molwitch-jchem3</artifactId>-->
-<!--            <version>1.0.4</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>chemaxon</groupId>-->
-<!--            <artifactId>jchem</artifactId>-->
-<!--            <version>1.0.0fake</version>-->
-<!--            <scope>provided</scope>-->
-<!--        </dependency>-->
+       <dependency>
+        <groupId>gov.nih.ncats</groupId>
+        <artifactId>molwitch-cdk</artifactId>
+        <version>1.0.3</version>
+        <scope>test</scope>
+    </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>gov.nih.ncats</groupId>-->
+        <!--            <artifactId>molwitch-jchem3</artifactId>-->
+        <!--            <version>1.0.4</version>-->
+        <!--            <scope>test</scope>-->
+        <!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>chemaxon</groupId>-->
+        <!--            <artifactId>jchem</artifactId>-->
+        <!--            <version>1.0.0fake</version>-->
+        <!--            <scope>provided</scope>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>

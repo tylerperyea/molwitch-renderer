@@ -19,12 +19,8 @@
 package gov.nih.ncats.molwitch.renderer;
 
 import java.awt.geom.Rectangle2D;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Stack;
+import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -32,22 +28,46 @@ import java.util.stream.StreamSupport;
 import gov.nih.ncats.molwitch.Atom;
 import gov.nih.ncats.molwitch.AtomCoordinates;
 import gov.nih.ncats.molwitch.Chemical;
+import gov.nih.ncats.molwitch.SGroup;
 
 class BoundingBox {
-	public static Rectangle2D computeBoundingBoxFor(Chemical c) {
-		return computeBoundingBoxFor(c.getAtoms());
+    public static Rectangle2D computeBoundingBoxFor(Chemical c) {
+        return computeBoundingBoxFor(c, 0);
+    }
+	public static Rectangle2D computeBoundingBoxFor(Chemical c, double padding) {
+        List<Supplier<AtomCoordinates>> list = new ArrayList<>(c.getAtomCount());
+        for(Atom a: c.getAtoms()){
+            list.add(a::getAtomCoordinates);
+        }
+        //if sgroups have brackets and we trust them add those too
+        for(SGroup sgroup : c.getSGroups()){
+            if(sgroup.hasBrackets() && sgroup.bracketsTrusted()){
+                for(SGroup.SGroupBracket bracket : sgroup.getBrackets()){
+                    list.add(bracket::getPoint1);
+                    list.add(bracket::getPoint2);
+                }
+            }
+        }
+		return computePaddedBoundingBoxFromSuppliers(list, padding);
 	}
 	public static Rectangle2D computeBoundingBoxFor(Iterable<Atom> c) {
 		return computePaddedBoundingBoxFor(c, 0);
 	}
 	public static Rectangle2D computePaddedBoundingBoxFor(Iterable<Atom> c, double padding) {
+	    List<Supplier<AtomCoordinates>> list = new ArrayList<>();
+	    for(Atom a: c){
+	        list.add(a::getAtomCoordinates);
+        }
+        return computePaddedBoundingBoxFromSuppliers(list, padding);
+    }
+    private static Rectangle2D computePaddedBoundingBoxFromSuppliers(Iterable<Supplier<AtomCoordinates>> c, double padding) {
 		double minX = Double.POSITIVE_INFINITY;
 		double minY = Double.POSITIVE_INFINITY;
 		double maxX = Double.NEGATIVE_INFINITY;
 		double maxY = Double.NEGATIVE_INFINITY;
 		
-		for(Atom a :c) {
-			AtomCoordinates coords = a.getAtomCoordinates();
+		for(Supplier<AtomCoordinates> a :c) {
+			AtomCoordinates coords = a.get();
 			
 			double x = coords.getX();
 			double y = coords.getY();

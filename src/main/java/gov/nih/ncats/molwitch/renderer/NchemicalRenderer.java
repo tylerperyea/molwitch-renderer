@@ -178,7 +178,6 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 
 	public static GeomGenerator ggen = new Graphics2DTemp.AWTGeomGenerator();
 
-
 	/**
 	 * @author peryeata
 	 * 
@@ -189,7 +188,24 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 	 */
 	@Override
 	public void renderChem(Graphics2D g9, Chemical c, int x, int y, int width, int height) {
+		//exit early if no atoms with "no structure" message
+		if(c.getAtomCount() ==0){
 
+			double textWidth = g9.getFontMetrics().stringWidth("NO STRUCTURE");
+			//some simple font resizing based on render size
+			int multiple = (int) Math.floor(width/textWidth);
+
+			if(multiple > 2) {
+				g9.setFont(g9.getFont().deriveFont(Font.BOLD, g9.getFont().getSize() * (multiple / 2)));
+			}
+			g9.setBackground(Color.white);
+			g9.setColor(Color.white);
+			g9.fillRect(x,y,width, height);
+			g9.setColor(Color.BLACK);
+			textWidth = g9.getFontMetrics().stringWidth("NO STRUCTURE");
+			g9.drawString("NO STRUCTURE", (width-x)/2 -(int)(textWidth/2),(height-y)/2);
+			return;
+		}
 		Graphics2DTemp g2 = new Graphics2DTemp(g9);
 		String s = c.getProperty(protProperty);
 		if (s != null) {
@@ -337,12 +353,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 //                e.printStackTrace();
             }
         }
-		Rectangle2D boundingBox = BoundingBox.computeBoundingBoxFor(c);
-		
-		minX = boundingBox.getMinX();
-		maxX = boundingBox.getMaxX();
-		minY = boundingBox.getMinY();
-		maxY = boundingBox.getMaxY();
+
 
 		Predicate<Bond> drawBond;
 		Predicate<Atom> drawAtom;
@@ -455,6 +466,12 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			BONDAVG /= bcount;
 		}
 		double maxW = BONDAVG * Math.tan(DEF_WEDGE_ANG);
+        Rectangle2D boundingBox = BoundingBox.computeBoundingBoxFor(c, maxW);
+
+        minX = boundingBox.getMinX();
+        maxX = boundingBox.getMaxX();
+        minY = boundingBox.getMinY();
+        maxY = boundingBox.getMaxY();
 
 		float defWidth = 3;
 		float defHeight = 3;
@@ -1090,125 +1107,125 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 //
 		if (cgs != null && !cgs.isEmpty()) {
 			g2.setFont(brafont);
+			//compute bounding boxes for brackets
+			Set<SGroup> trustedSgroupBrackets = new HashSet<>();
+			Set<SGroup> untrustedSgroupBrackets = new HashSet<>();
 			for (SGroup cg : cgs) {
-				if(cg == null){
-					continue;
-				}
 				if(cg.getType() == SGroupType.SUPERATOM_OR_ABBREVIATION){
 					//don't use bracket for SuperAtoms
 					continue;
 				}
-				Rectangle2D.Float rect = computeBracketCoordsFor(cg);
+
+					if (cg.bracketsTrusted()) {
+						trustedSgroupBrackets.add(cg);
+					}else{
+						untrustedSgroupBrackets.add(cg);
+					}
+
+			}
+			for(SGroup sgroup: trustedSgroupBrackets){
+				Rectangle2D.Float rect = computeBracketCoordsFor(sgroup, 0);
 				if(rect == null){
 					continue;
 				}
-				float[] coord = new float[] { 	rect.x, rect.y, rect.x, 
-						rect.y + rect.height, rect.x + rect.width,
-						rect.y, rect.x + rect.width, 
-						rect.y + rect.height };
-				float[] ncoord = new float[8];
-			
-				
-				
-//				rect.tra
-//				centerTransform.createTransformedShape(pSrc)
-				centerTransform.transform(coord, 0, ncoord, 0, 4);
-//				System.out.println("atom coords = " + Arrays.toString(coord));
-//				System.out.println("transformed coords = " + Arrays.toString(ncoord));
-//				System.out.println(cg.getType());
-				
-				Rectangle2D.Float nrect = new Rectangle2D.Float(ncoord[0], ncoord[1], 
-						Math.abs(ncoord[4]-ncoord[0]), Math.abs(ncoord[3]-ncoord[1]));
-				// Multiple groups need more padding
-//				System.out.println("SgroupType = " + cg.getType());
-//				if (cg.getType() == SGroupType.MULTIPLE) {
-//					Rectangle2D rc = new Rectangle2D.Double(ncoord[2], ncoord[3], ncoord[4] - ncoord[0],
-//							ncoord[5] - ncoord[1]);
-//					rc = getBoundsForGroup(toAddLabelsD, cg.getAtoms()::iterator, rc);
-//					ncoord[0] = (float) rc.getMinX();
-//					ncoord[1] = (float) rc.getMinY();
-//					ncoord[2] = (float) rc.getMinX();
-//					ncoord[3] = (float) (rc.getMaxY());
-//					//TODO dkatzel shouldn't 5 and 7 be switched?
-//					ncoord[4] = (float) (rc.getMaxX());
-//					ncoord[5] = (float) (rc.getMaxY());
-//					ncoord[6] = (float) rc.getMaxX();
-//					ncoord[7] = (float) (rc.getMinY());
-//
-//				}
-				g2.setStroke(solidThin);
-				
-				float bracketWidth= nrect.width/10;
-//				g2.drawP(ggen.makeLine(nrect.getX(), nrect.getY(), nrect.getX(), nrect.getMaxY()));
-//				g2.drawP(ggen.makeLine(nrect.getX(), nrect.getY(), nrect.getX()+bracketWidth, nrect.getY()));
-//				g2.drawP(ggen.makeLine(nrect.getX(), nrect.getMaxY(), nrect.getX()+bracketWidth, nrect.getMaxY()));
-//				
-//				g2.drawP(ggen.makeLine(nrect.getMaxX(), nrect.getY(), nrect.getMaxX(), nrect.getMaxY()));
-//				g2.drawP(ggen.makeLine(nrect.getMaxX(), nrect.getY(), nrect.getMaxX()-bracketWidth, nrect.getY()));
-//				g2.drawP(ggen.makeLine(nrect.getMaxX(), nrect.getMaxY(), nrect.getMaxX()-bracketWidth, nrect.getMaxY()));
-//				
-				
-				float len1 = (ncoord[0] - ncoord[6]) * (ncoord[0] - ncoord[6]); // +
-																				// (ncoord[1]
-																				// -
-																				// ncoord[7])
-																				// *
-																				// (ncoord[1]
-																				// -
-																				// ncoord[7]);
+				drawBracketedSgroup(g2, (float) maxX, (float) maxY, (float) minX, (float) minY, centerTransform, solidThin, fsize, sgroup, rect);
 
-				len1 = (float) Math.sqrt(len1) / 2;
-				float len2 = (ncoord[6] - ncoord[4]) * (ncoord[6] - ncoord[4])
-						+ (ncoord[5] - ncoord[7]) * (ncoord[5] - ncoord[7]);
-				len2 = (float) Math.sqrt(len2);
-				float bsize = .2f;
-				
-				
-				g2.drawP(ggen.makeLine(ncoord[0], ncoord[1], ncoord[2], ncoord[3]));
-				g2.drawP(ggen.makeLine(ncoord[0], ncoord[1], ncoord[0] + len1 * bsize, ncoord[1]));
-				g2.drawP(ggen.makeLine(ncoord[2], ncoord[3], ncoord[2] + len1 * bsize, ncoord[3]));
-				g2.drawP(ggen.makeLine(ncoord[4], ncoord[5], ncoord[6], ncoord[7]));
-				g2.drawP(ggen.makeLine(ncoord[4], ncoord[5], ncoord[4] - len1 * bsize, ncoord[5]));
-				g2.drawP(ggen.makeLine(ncoord[6], ncoord[7], ncoord[6] - len1 * bsize, ncoord[7]));
-
-				
-//				System.out.println("minX " + minX + " minY = " + minY + "maxX = " + maxX + " maxY" + maxY);
-				float[] transformed = new float[4];
-				
-				centerTransform.transform(new float[] {(float)minX,  (float) minY, (float) maxX, (float) maxY}, 0, transformed,0, 2);
-//				System.out.println("transformed mins = " + Arrays.toString(transformed));
-				
-				Optional<String> subs = cg.getSubscript();
-				Optional<String> supsOpt = cg.getSuperscript();
-				
-//				System.out.println("subs = " + subs);
-//				System.out.println("sups = " + supsOpt);
-				if(supsOpt.isPresent() && (cg.getType() == SGroupType.MULTIPLE || supsOpt.get().equals("eu")) ){
-					supsOpt = Optional.empty();
-					
-				}
-				
-				if(supsOpt.isPresent() || subs.isPresent()){
-					g2.setFont(defaultFont.deriveFont(fsize * 0.7f));
-					fm = g2.getFontMetrics();
-	
-					if(subs.isPresent()){
-						float h2 = (float) (fm.getStringBounds(subs.get(), g2._delagate).getHeight());
-		
-						drawString(g2, " " + subs.get(), ncoord[4], ncoord[5] + h2 * .33f);
-					}
-					if(supsOpt.isPresent()){
-						String sups = supsOpt.get();
-						float h1 = (float) (fm.getStringBounds(sups, g2._delagate).getHeight());
-						drawString(g2, " " + sups, ncoord[6], ncoord[7] + h1 * .33f);
-					}
-				}
 			}
+
+			for(SGroup sgroup: untrustedSgroupBrackets){
+				Rectangle2D.Float rect = computeBracketCoordsFor(sgroup, bondWidth);
+				if(rect == null){
+					continue;
+				}
+				drawBracketedSgroup(g2, (float) maxX, (float) maxY, (float) minX, (float) minY, centerTransform, solidThin, fsize, sgroup, rect);
+
+			}
+
 		}
 		 
 	}
 
-	private static Rectangle2D.Float computeBracketCoordsFor(SGroup cg){
+	private void drawBracketedSgroup(Graphics2DTemp g2, float maxX, float maxY, float minX, float minY, AffineTransformParent centerTransform, BasicStroke solidThin, float fsize, SGroup cg, Rectangle2D.Float rect) {
+		FontMetrics fm;
+		float[] coord = new float[] { 	rect.x, rect.y, rect.x,
+				rect.y + rect.height, rect.x + rect.width,
+				rect.y, rect.x + rect.width,
+				rect.y + rect.height };
+		float[] ncoord = new float[8];
+
+
+		centerTransform.transform(coord, 0, ncoord, 0, 4);
+//				System.out.println("atom coords = " + Arrays.toString(coord));
+//				System.out.println("transformed coords = " + Arrays.toString(ncoord));
+//				System.out.println(cg.getType());
+
+		Rectangle2D.Float nrect = new Rectangle2D.Float(ncoord[0], ncoord[1],
+				Math.abs(ncoord[4]-ncoord[0]), Math.abs(ncoord[3]-ncoord[1]));
+
+		g2.setStroke(solidThin);
+
+		float bracketWidth= nrect.width/10;
+
+//
+
+		float len1 = (ncoord[0] - ncoord[6]) * (ncoord[0] - ncoord[6]); // +
+		// (ncoord[1]
+		// -
+		// ncoord[7])
+		// *
+		// (ncoord[1]
+		// -
+		// ncoord[7]);
+
+		len1 = (float) Math.sqrt(len1) / 2;
+		float len2 = (ncoord[6] - ncoord[4]) * (ncoord[6] - ncoord[4])
+				+ (ncoord[5] - ncoord[7]) * (ncoord[5] - ncoord[7]);
+		len2 = (float) Math.sqrt(len2);
+		float bsize = .2f;
+
+
+		g2.drawP(ggen.makeLine(ncoord[0], ncoord[1], ncoord[2], ncoord[3]));
+		g2.drawP(ggen.makeLine(ncoord[0], ncoord[1], ncoord[0] + len1 * bsize, ncoord[1]));
+		g2.drawP(ggen.makeLine(ncoord[2], ncoord[3], ncoord[2] + len1 * bsize, ncoord[3]));
+		g2.drawP(ggen.makeLine(ncoord[4], ncoord[5], ncoord[6], ncoord[7]));
+		g2.drawP(ggen.makeLine(ncoord[4], ncoord[5], ncoord[4] - len1 * bsize, ncoord[5]));
+		g2.drawP(ggen.makeLine(ncoord[6], ncoord[7], ncoord[6] - len1 * bsize, ncoord[7]));
+
+
+//				System.out.println("minX " + minX + " minY = " + minY + "maxX = " + maxX + " maxY" + maxY);
+		float[] transformed = new float[4];
+
+		centerTransform.transform(new float[] {minX, minY, maxX, maxY}, 0, transformed,0, 2);
+//				System.out.println("transformed mins = " + Arrays.toString(transformed));
+
+		Optional<String> subs = cg.getSubscript();
+		Optional<String> supsOpt = cg.getSuperscript();
+
+//				System.out.println("subs = " + subs);
+//				System.out.println("sups = " + supsOpt);
+		if(supsOpt.isPresent() && (cg.getType() == SGroupType.MULTIPLE || supsOpt.get().equals("eu")) ){
+			supsOpt = Optional.empty();
+
+		}
+
+		if(supsOpt.isPresent() || subs.isPresent()){
+			g2.setFont(defaultFont.deriveFont(fsize * 0.7f));
+			fm = g2.getFontMetrics();
+
+			if(subs.isPresent()){
+				float h2 = (float) (fm.getStringBounds(subs.get(), g2._delagate).getHeight());
+
+				drawString(g2, " " + subs.get(), ncoord[4], ncoord[5] + h2 * .33f);
+			}
+			if(supsOpt.isPresent()){
+				String sups = supsOpt.get();
+				float h1 = (float) (fm.getStringBounds(sups, g2._delagate).getHeight());
+				drawString(g2, " " + sups, ncoord[6], ncoord[7] + h1 * .33f);
+			}
+		}
+	}
+
+	private static Rectangle2D.Float computeBracketCoordsFor(SGroup cg, double bondWidth){
 		Rectangle2D rt;
 		if(cg.bracketsSupported()){
 			
@@ -1237,27 +1254,22 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		
 		//brackets not supported or trusted
 		//compute using bounding box
-		rt = BoundingBox.computePaddedBoundingBoxFor(cg.getAtoms()::iterator, .5f);
+        //GSRS-1635 single atom sgroups have terminal atoms that go beyond
+        //computed bracket area so bump up the padding in those cases
+		long numCrossingBonds = cg.getBonds().collect(Collectors.counting());
+		if(numCrossingBonds >0) {
+			rt = BoundingBox.computePaddedBoundingBoxFor(cg.getAtoms()::iterator, .5F);
+		}else{
+			rt = BoundingBox.computePaddedBoundingBoxFor(cg.getAtoms()::iterator, Math.max(.5F, bondWidth/3));
+		}
 
 		
 		Rectangle2D.Float r = new Rectangle2D.Float((float) rt.getX(),
 				(float) rt.getY(), (float) rt.getWidth(),
 				(float) rt.getHeight());
-//		System.out.println(r);
 		return r;
 	}
-	private static Rectangle2D getBoundsForGroup(List<DisplayLabel> dlist, Iterable<Atom> atoms, Rectangle2D start) {
-		Set<Atom> cas = new HashSet<Atom>();
-		for (Atom ca : atoms) {
-			cas.add(ca);
-		}
-		for (DisplayLabel dl : dlist) {
-			if (cas.contains(dl.atomGroup)) {
-				start.add(dl.bbox);
-			}
-		}
-		return start;
-	}
+
 
 	public static class DisplayLabel {
 		public Rectangle2D bbox;
