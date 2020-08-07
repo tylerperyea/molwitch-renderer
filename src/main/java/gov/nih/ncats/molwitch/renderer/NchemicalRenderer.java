@@ -22,8 +22,6 @@ import gov.nih.ncats.molwitch.*;
 import gov.nih.ncats.molwitch.SGroup.SGroupBracket;
 import gov.nih.ncats.molwitch.SGroup.SGroupType;
 import gov.nih.ncats.molwitch.Bond.BondType;
-import gov.nih.ncats.molwitch.Bond.DoubleBondStereo;
-import gov.nih.ncats.molwitch.isotopes.IsotopeFactory;
 import gov.nih.ncats.molwitch.isotopes.NISTIsotopeFactory;
 import gov.nih.ncats.molwitch.renderer.Graphics2DParent.*;
 import gov.nih.ncats.molwitch.renderer.RendererOptions.DrawOptions;
@@ -34,25 +32,17 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.font.GlyphVector;
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.RenderedImage;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -66,7 +56,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.imageio.ImageIO;
 
 //import java.awt.image.BufferedImage;
 /**
@@ -499,7 +488,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 
 		adjW = (width - wMarge - newMarge) / cwidth;
 		adjH = (height - hMarge - newMarge) / cheight;
-		resize = Math.min(adjW, adjH);
+		resize = Math.abs(Math.min(adjW, adjH));
 
 		AffineTransformParent centerTransform = ggen.makeAffineTransform();
 
