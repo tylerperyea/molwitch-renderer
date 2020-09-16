@@ -727,7 +727,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				if (drawCarbon) {
 					drawHydrogens = true;
 				} else if (isCarbon) {
-					if ((forceDraw && !isStereo) || ca.getBondCount() < 2 || ca.getCharge() != 0 || ca.getRadicalValue() != 0
+					if ((forceDraw && !isStereo) || ca.getBondCount() < 2 || ca.getCharge() != 0 || ca.getRadical() != 0
 							|| ca.isIsotope()) {
 						drawHydrogens = true;
 					} else {
@@ -743,7 +743,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 					if(ca.getBondCount() < 2){
 						
 						//terminal C
-						drawCarbon = forceDraw || ca.getCharge() != 0 || ca.getRadicalValue() != 0 || ca.isIsotope();
+						drawCarbon = forceDraw || ca.getCharge() != 0 || ca.getRadical() != 0 || ca.isIsotope();
 					}else{
 						drawCarbon=false;
 					}
@@ -847,7 +847,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				attachmentSIZE.add(1f);
 				forceDraw = true;
 			}
-			int radicalValue = ca.getRadicalValue();
+			int radicalValue = ca.getRadical();
 			if (radicalValue != 0) {
 				String attatch2 = "";
 				switch (radicalValue) {
