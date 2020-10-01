@@ -455,12 +455,18 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			BONDAVG /= bcount;
 		}
 		double maxW = BONDAVG * Math.tan(DEF_WEDGE_ANG);
-        Rectangle2D boundingBox = BoundingBox.computeBoundingBoxFor(c, maxW);
+		double maxP = maxW;
+		if(c.getAtomCount()<=2){
+		 	maxP=maxP*3;
+		}else if(c.getAtomCount()<=6){
+			maxP=maxP*2;
+		}
+		Rectangle2D boundingBox = BoundingBox.computeBoundingBoxFor(c, maxP);
 
-        minX = boundingBox.getMinX();
-        maxX = boundingBox.getMaxX();
-        minY = boundingBox.getMinY();
-        maxY = boundingBox.getMaxY();
+		minX = boundingBox.getMinX();
+		maxX = boundingBox.getMaxX();
+		minY = boundingBox.getMinY();
+		maxY = boundingBox.getMaxY();
 
 		float defWidth = 3;
 		float defHeight = 3;
