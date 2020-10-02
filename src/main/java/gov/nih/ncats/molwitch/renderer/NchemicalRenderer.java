@@ -338,7 +338,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		if(!c.hasCoordinates()){
             try {
                 c.generateCoordinates();
-            } catch (ChemkitException e) {
+            } catch (MolwitchException e) {
 //                e.printStackTrace();
             }
         }
