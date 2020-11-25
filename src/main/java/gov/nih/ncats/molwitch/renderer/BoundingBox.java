@@ -35,10 +35,29 @@ class BoundingBox {
         return computeBoundingBoxFor(c, 0);
     }
 	public static Rectangle2D computeBoundingBoxFor(Chemical c, double padding) {
-        List<Supplier<AtomCoordinates>> list = new ArrayList<>(c.getAtomCount());
-        for(Atom a: c.getAtoms()){
-            list.add(a::getAtomCoordinates);
-        }
+    	int atomCount = c.getAtomCount();
+		List<Supplier<AtomCoordinates>> list = new ArrayList<>(atomCount);
+    	if(atomCount ==1){
+    		//GSRS-1712 add more fudge factor if there is only 1 atom
+			//to deal with implicit Hs and charges
+
+			Atom a = c.getAtom(0);
+			list.add(a::getAtomCoordinates);
+			AtomCoordinates coords = a.getAtomCoordinates();
+			double x = coords.getX();
+			double y = coords.getY();
+			//adding 1 to all directions might be a little overkill
+			//there is math done downstream to compute the center and do the affine transforms
+			//so this should keep the center as the actual atom postion
+			//while adding some padding for the image so we don't get too zoomed in.
+			list.add(()-> AtomCoordinates.valueOf(x-1, y-1));
+			list.add(()-> AtomCoordinates.valueOf(x+1, y+1));
+		}else {
+
+			for (Atom a : c.getAtoms()) {
+				list.add(a::getAtomCoordinates);
+			}
+		}
         //if sgroups have brackets and we trust them add those too
         for(SGroup sgroup : c.getSGroups()){
             if(sgroup.hasBrackets() && sgroup.bracketsTrusted()){
