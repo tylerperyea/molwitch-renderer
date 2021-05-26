@@ -24,7 +24,7 @@
 
     <groupId>gov.nih.ncats</groupId>
     <artifactId>molwitch-renderer</artifactId>
-    <version>1.0.8</version>
+    <version>1.0.8-SNAPSHOT</version>
 
     <name>Molwitch Renderer</name>
 
@@ -66,7 +66,7 @@
     </developers>
 
     <scm>
-        <url>https://spotlite.nih.gov/ncats/ncats-common</url>
+        <url>https://github.com/ncats/molwitch-renderer.git</url>
     </scm>
 
     <distributionManagement>
@@ -86,7 +86,7 @@
        <dependency>
            <groupId>gov.nih.ncats</groupId>
            <artifactId>molwitch</artifactId>
-           <version>0.6.0</version>
+           <version>0.6.1-SNAPSHOT</version>
        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -109,21 +109,27 @@
        <dependency>
         <groupId>gov.nih.ncats</groupId>
         <artifactId>molwitch-cdk</artifactId>
-        <version>1.0.4-SNAPSHOT</version>
+        <version>1.0.7-SNAPSHOT</version>
         <scope>test</scope>
     </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>gov.nih.ncats</groupId>-->
-        <!--            <artifactId>molwitch-jchem3</artifactId>-->
-        <!--            <version>1.0.4</version>-->
-        <!--            <scope>test</scope>-->
-        <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>chemaxon</groupId>-->
-        <!--            <artifactId>jchem</artifactId>-->
-        <!--            <version>1.0.0fake</version>-->
-        <!--            <scope>provided</scope>-->
-        <!--        </dependency>-->
+        <dependency>
+            <artifactId>cdk-bundle</artifactId>
+            <groupId>org.openscience.cdk</groupId>
+            <version>2.5</version>
+            <scope>test</scope>
+        </dependency>
+<!--       <dependency>-->
+<!--        <groupId>gov.nih.ncats</groupId>-->
+<!--            <artifactId>molwitch-jchem3</artifactId>-->
+<!--            <version>1.0.4</version>-->
+<!--        <scope>test</scope>-->
+<!--    </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>chemaxon</groupId>-->
+<!--            <artifactId>jchem</artifactId>-->
+<!--            <version>1.0.0fake</version>-->
+<!--            <scope>provided</scope>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
@@ -133,7 +139,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
    </dependencies>
