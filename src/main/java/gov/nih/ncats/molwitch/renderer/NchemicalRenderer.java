@@ -570,7 +570,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			boolean forceDraw = false;
 			boolean highlighted = false;
 			boolean fakeAtom = false;
-			boolean isCarbon = (ca.getSymbol().equals("C"));
+			boolean isCarbon = "C".equals(ca.getSymbol());
 			boolean isStereo = false;
 			boolean forceHalo = false;
 
@@ -584,8 +584,11 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 
 
 			sm = ca.getAlias().orElse(ca.getSymbol());
-			if (!sm.equals(ca.getSymbol())) {
+			if (sm==null || !sm.equals(ca.getSymbol())) {
 				fakeAtom = true;
+				if(sm==null && ca.isQueryAtom()){
+					sm="*";
+				}
 			  }
 
 			// have to make a normal if statement
@@ -694,7 +697,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 						if (stereoColoring) {
 							col = ncol;
 						}
-						if (sm.equals("C")) {
+						if ("C".equals(sm)) {
 							sm = attach2;
 						} else {
 							sm = sm + attach2;

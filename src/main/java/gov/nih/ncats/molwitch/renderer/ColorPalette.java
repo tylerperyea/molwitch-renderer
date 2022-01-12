@@ -156,7 +156,7 @@ public class ColorPalette {
         return highlightColors.size();
     }
     public ARGBColor getAtomColor(String symbol){
-        ARGBColor color = atomColors.get(Objects.requireNonNull(symbol));
+        ARGBColor color = atomColors.get(symbol);
         if(color !=null){
             return color;
         }
