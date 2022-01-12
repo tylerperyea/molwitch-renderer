@@ -2,6 +2,7 @@
 
 NCATS custom Molecule Renderer that uses Molwitch `Chemical` objects into image files.
 
+This project is used by the  [GSRS Project](https://gsrs.ncats.nih.gov)
 ## Customizable by JSON Configuration
 
 The `RendererOptions` class has many configuration options to change how the renderer displays.  An instance can either be created by making a new `RendererOptions` instance
