@@ -24,7 +24,7 @@
 
     <groupId>gov.nih.ncats</groupId>
     <artifactId>molwitch-renderer</artifactId>
-    <version>1.0.9</version>
+    <version>1.0.10-SNAPSHOT</version>
 
     <name>Molwitch Renderer</name>
 
@@ -121,15 +121,15 @@
 <!--       <dependency>-->
 <!--        <groupId>gov.nih.ncats</groupId>-->
 <!--            <artifactId>molwitch-jchem3</artifactId>-->
-<!--            <version>1.0.4</version>-->
+<!--            <version>1.0.11-SNAPSHOT</version>-->
 <!--        <scope>test</scope>-->
 <!--    </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>chemaxon</groupId>-->
-<!--            <artifactId>jchem</artifactId>-->
-<!--            <version>1.0.0fake</version>-->
-<!--            <scope>provided</scope>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>chemaxon</groupId>
+            <artifactId>jchem</artifactId>
+            <version>1.0.0fake</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
