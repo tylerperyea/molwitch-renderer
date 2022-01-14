@@ -530,7 +530,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		ArrayList<DisplayLabel> toAddLabelsD = new ArrayList<DisplayLabel>();
 
 		Map<Atom, AtomDrawProps> atompDProps = new HashMap<>();
-		Map<Atom, Chirality> stereoMap = null;
+		Map<Integer, Chirality> stereoMap = null;
 		if (drawStereoLabels) {
 			
 			if(stereoFromMap) {
@@ -541,11 +541,12 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 					//which any atom map value not set to 1 or 2 is considered either (3)
 					//even 0 !!!
 					int value = ca.getAtomToAtomMap().orElse(3);
-					stereoMap.put(ca, Chirality.valueByParity(value));
+					stereoMap.put(ca.getAtomIndexInParent(), Chirality.valueByParity(value));
 				}
 			}else {
-				stereoMap = c.getAllStereocenters().stream().filter(Stereocenter::isDefined).map(Stereocenter::getCenterAtom).filter(a -> a.getChirality() != null)
-					.collect(Collectors.toMap(Function.identity(), a -> a.getChirality()));
+				final List<Stereocenter> allStereocenters = c.getAllStereocenters();
+				stereoMap = allStereocenters.stream().filter(Stereocenter::isDefined).map(Stereocenter::getCenterAtom).filter(a -> a.getChirality() != null)
+					.collect(Collectors.toMap(Atom::getAtomIndexInParent, a -> a.getChirality()));
 			}
 
 		}
@@ -565,6 +566,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			if(!drawAtom.test(ca)){
 				continue;
 			}
+
 			atomIndex++;
 			boolean drawHydrogens = true;
 			boolean forceDraw = false;
@@ -646,7 +648,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 
 				String attach2 = null;
 				ARGBColor ncol = col;
-				Chirality chirality = stereoMap.get(ca);
+				Chirality chirality = stereoMap.get(atomIndex);
 				if(chirality !=null) {
 					switch (chirality) {
 						case R:
