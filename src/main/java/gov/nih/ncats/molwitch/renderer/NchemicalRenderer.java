@@ -1257,10 +1257,11 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
         //GSRS-1635 single atom sgroups have terminal atoms that go beyond
         //computed bracket area so bump up the padding in those cases
 		long numCrossingBonds = cg.getBonds().collect(Collectors.counting());
+		double paddingFactor=0.005;
 		if(numCrossingBonds >0) {
-			rt = BoundingBox.computePaddedBoundingBoxFor(cg.getAtoms()::iterator, .5F);
+			rt = BoundingBox.computePaddedBoundingBoxFor(cg.getAtoms()::iterator, paddingFactor);
 		}else{
-			rt = BoundingBox.computePaddedBoundingBoxFor(cg.getAtoms()::iterator, Math.max(.5F, bondWidth/3));
+			rt = BoundingBox.computePaddedBoundingBoxFor(cg.getAtoms()::iterator, Math.max(paddingFactor, bondWidth/3));
 		}
 
 		

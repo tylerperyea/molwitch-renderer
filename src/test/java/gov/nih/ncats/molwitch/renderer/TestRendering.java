@@ -20,13 +20,16 @@ package gov.nih.ncats.molwitch.renderer;
 
 import gov.nih.ncats.molwitch.Chemical;
 import gov.nih.ncats.molwitch.MolWitch;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.nio.file.Files;
 
@@ -40,4 +43,17 @@ public class TestRendering {
         ImageIO.write(renderer.createImage(c, 600), "PNG", new File(MolWitch.getModuleName() +"_overlap.png"));        
 
     }
+
+    @Test
+    public void renderMol() throws Exception{
+        ChemicalRenderer renderer = new ChemicalRenderer();
+        Chemical c = Chemical.parseMol(new File(getClass().getResource("/benzoic_acid.mol").getFile()));
+        renderer.setBackgroundColor(Color.white);
+        BufferedImage image=renderer.createImage(c, 600);
+
+        boolean result1 =ImageIO.write(image, "PNG", new File(MolWitch.getModuleName() +"_benzoic_acid.png"));
+        Assert.assertTrue(result1);
+
+    }
+
 }
