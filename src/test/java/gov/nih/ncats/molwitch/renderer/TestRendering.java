@@ -75,7 +75,7 @@ public class TestRendering {
 
             boolean result1 = false;
             try {
-                result1 = ImageIO.write(image, "PNG", new File(MolWitch.getModuleName() + mol +"p.png"));
+                result1 = ImageIO.write(image, "PNG", new File(MolWitch.getModuleName() + mol +"r.png"));
             } catch (IOException e) {
                 e.printStackTrace();
             }

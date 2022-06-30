@@ -110,9 +110,13 @@ class BoundingBox {
 		double xRatio = xSpread/ySpread;
 		double yRatio = ySpread/xSpread;
 		System.out.printf("xRatio: %f, yRatio: %f\n", xRatio, yRatio);
+		double scale = 0.7;
+		xRatio = xRatio * scale;
+		yRatio= yRatio * scale;
+
 		double factor=1.1;
-		double xPadding = Math.max((xSpread/avgSpread)*factor, 0.0);
-		double yPadding = Math.max((ySpread/avgSpread)*factor, 0.0);
+		double xPadding = Math.max(xRatio, 0.0); //(xSpread/avgSpread)*factor
+		double yPadding = Math.max(yRatio, 0.0);//(ySpread/avgSpread)*factor
 		System.out.printf("xPadding: %f, yPadding: %f\n", xPadding, yPadding);
 
 		double doublePadding = padding*2;
