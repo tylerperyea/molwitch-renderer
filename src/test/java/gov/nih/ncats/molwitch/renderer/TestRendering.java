@@ -31,7 +31,10 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.List;
 
 @Ignore
 public class TestRendering {
@@ -51,9 +54,36 @@ public class TestRendering {
         renderer.setBackgroundColor(Color.white);
         BufferedImage image=renderer.createImage(c, 600);
 
-        boolean result1 =ImageIO.write(image, "PNG", new File(MolWitch.getModuleName() +"_benzoic_acid.png"));
+        boolean result1 =ImageIO.write(image, "PNG", new File(MolWitch.getModuleName() +"_benzoic_acid4.png"));
         Assert.assertTrue(result1);
 
     }
 
+    @Test
+    public void renderMols() throws Exception{
+        List<String> molNames = Arrays.asList("EU9DD7762T", "P88XT4IS4D", "ethane", "benzoic_acid");
+        molNames.forEach(mol->{
+            ChemicalRenderer renderer = new ChemicalRenderer();
+            Chemical c = null;
+            try {
+                c = Chemical.parseMol(new File(getClass().getResource("/" + mol + ".mol").getFile()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            renderer.setBackgroundColor(Color.white);
+            BufferedImage image=renderer.createImage(c, 600);
+
+            boolean result1 = false;
+            try {
+                result1 = ImageIO.write(image, "PNG", new File(MolWitch.getModuleName() + mol +"p.png"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Assert.assertTrue(result1);
+
+        });
+
+    }
+
 }
+

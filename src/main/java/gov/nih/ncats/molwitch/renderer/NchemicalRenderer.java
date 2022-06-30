@@ -324,11 +324,13 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		double maxY = Double.NEGATIVE_INFINITY;
 		double minX = Double.POSITIVE_INFINITY;
 		double minY = Double.POSITIVE_INFINITY;
-		float hMarge = Math.max(3, width * 0.25f);
-		float wMarge = Math.max(3, height * 0.25f);
+		float marginFactor=0.0f;//was 0.25f
+		float hMarge = Math.max(3, width * marginFactor);
+		float wMarge = Math.max(3, height * marginFactor);
+		int additiveFactor = 0; //was 3
 		if (this.getBorderVisible()) {
-			hMarge += 3;
-			wMarge += 3;
+			hMarge += additiveFactor;
+			wMarge += additiveFactor;
 		}
 
 		g2.setColor(drawColor);
@@ -461,7 +463,8 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		}else if(c.getAtomCount()<=6){
 			maxP=maxP*2;
 		}
-		Rectangle2D boundingBox = BoundingBox.computeBoundingBoxFor(c, maxP);
+		double newMaxP=0.0; //was maxP
+		Rectangle2D boundingBox = BoundingBox.computeBoundingBoxFor(c, newMaxP);
 
 		minX = boundingBox.getMinX();
 		maxX = boundingBox.getMaxX();
@@ -484,6 +487,9 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			cheight = defHeight;
 		}
 		// System.out.println("Size:" + cwidth + "," + cheight);
+		System.out.printf("original wMarge: %f; hMarge: %f\n", wMarge, hMarge);
+		//wMarge=wMarge/2;
+		//hMarge=hMarge/2;
 
 		double adjW = Math.max((width - wMarge) / cwidth, 1);
 		double adjH = Math.max((height - hMarge) / cheight, 1);
@@ -491,6 +497,8 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		int newMarge = Math.max(
 				g2.getFontMetrics(defaultFont.deriveFont((float) (DEF_FONT_PERCENT * resize * BONDAVG))).getHeight(),
 				0);
+		System.out.printf("original newMarge: %d\n", newMarge);
+		newMarge=0;
 
 		adjW = (width - wMarge - newMarge) / cwidth;
 		adjH = (height - hMarge - newMarge) / cheight;
