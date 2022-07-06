@@ -24,6 +24,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.*;
 import gov.nih.ncats.molwitch.Atom;
@@ -178,11 +179,11 @@ public class ChemicalRenderer {
 	public BufferedImage createImageAutoAdjust (Chemical c, int maxWidth, int minWidth, int maxHeight, int minHeight,
 												double requestedAverageBondLength) {
 
-		double foundAverageBondLength = computeAverageBondLength(c);
+		Optional<Double> foundAverageBondLength = computeAverageBondLength(c);
 		System.out.printf("average bond length: %f\n", foundAverageBondLength);
 		double scaleFactor =1.0;
-		if( c.getAtomCount() > 1 ) {
-			scaleFactor= requestedAverageBondLength / foundAverageBondLength;
+		if( foundAverageBondLength.isPresent() ) {
+			scaleFactor= requestedAverageBondLength / foundAverageBondLength.get();
 		}
 
 		int arbitraryUnitScaling= 50;
@@ -242,7 +243,7 @@ public class ChemicalRenderer {
     } 
 
 
-	public static double computeAverageInteratomDistance(Chemical c){
+	public static double computeAverageInterAtomDistance(Chemical c){
 		int totalDistances = 0;
 		double totalDistance =0.0d;
 		for(int i=0; i<c.getAtomCount();i++){
@@ -261,16 +262,35 @@ public class ChemicalRenderer {
 		return totalDistance/totalDistances;
 	}
 
-	public static double computeAverageBondLength(Chemical c) {
+	public static Optional<Double> computeLowestInterAtomDistance(Chemical c){
+		int totalDistances = 0;
+		double totalDistance =0.0d;
+		for(int i=0; i<c.getAtomCount();i++){
+			for(int j=i+1; j<c.getAtomCount();j++){
+				double firstAtomX= c.getAtom(i).getAtomCoordinates().getX();
+				double firstAtomY= c.getAtom(i).getAtomCoordinates().getY();
+				double secondAtomX= c.getAtom(j).getAtomCoordinates().getX();
+				double secondAtomY= c.getAtom(j).getAtomCoordinates().getY();
+
+				double distance = Math.sqrt(Math.pow( (secondAtomX-firstAtomX), 2) + Math.pow((secondAtomY-firstAtomY),2));
+				System.out.printf("atom 1: %d; atom 2: %d; distance: %f\n", c.getAtom(i).getAtomicNumber(), c.getAtom(j).getAtomicNumber(), distance);
+				if( distance >0) {
+					totalDistance += distance;
+					totalDistances++;
+				}
+			}
+		}
+		return totalDistance>0 ? Optional.of(totalDistance/totalDistances) : Optional.empty();
+	}
+
+	public static Optional<Double> computeAverageBondLength(Chemical c) {
 		double totalBondLength=0.0;
 		if( c.getBondCount()>0) {
 			for (Bond bond : c.getBonds()) {
 				totalBondLength += bond.getBondLength();
 			}
-			return totalBondLength / c.getBondCount();
-		} else if( c.getAtomCount()> 1){
-			return computeAverageInteratomDistance(c);
+			return Optional.of( totalBondLength / c.getBondCount());
 		}
-		return 0.0d;
+		return Optional.empty();
 	}
 }

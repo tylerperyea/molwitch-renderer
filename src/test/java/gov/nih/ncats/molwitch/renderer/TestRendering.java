@@ -27,7 +27,6 @@ import org.junit.Test;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -92,14 +91,15 @@ public class TestRendering {
 
     @Test
     public void testComputeAverageInteratomDistance() {
-        String mol="water_double2";
+        String mol="water_double200";
         Chemical c = null;
         try {
             c = Chemical.parseMol(new File(getClass().getResource("/" + mol + ".mol").getFile()));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        double avg = ChemicalRenderer.computeAverageInteratomDistance(c);
+        double avg = ChemicalRenderer.computeLowestInterAtomDistance(c).get();
+        System.out.println("lowest interatomic distance");
         Assert.assertTrue(avg>= 100);
     }
 
