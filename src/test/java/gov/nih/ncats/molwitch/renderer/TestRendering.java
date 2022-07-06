@@ -98,9 +98,9 @@ public class TestRendering {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        double avg = ChemicalRenderer.computeLowestInterAtomDistance(c).get();
-        System.out.println("lowest interatomic distance");
-        Assert.assertTrue(avg>= 100);
+        double min = ChemicalRenderer.computeLowestInterAtomDistance(c).get();
+        System.out.println("lowest interatomic distance " + min);
+        Assert.assertTrue(min>= 100);
     }
 
 }
