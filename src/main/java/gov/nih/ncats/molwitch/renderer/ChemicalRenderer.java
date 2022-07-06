@@ -263,8 +263,7 @@ public class ChemicalRenderer {
 	}
 
 	public static Optional<Double> computeLowestInterAtomDistance(Chemical c){
-		int totalDistances = 0;
-		double totalDistance =0.0d;
+		double lowest =0.0d;
 		for(int i=0; i<c.getAtomCount();i++){
 			for(int j=i+1; j<c.getAtomCount();j++){
 				double firstAtomX= c.getAtom(i).getAtomCoordinates().getX();
@@ -275,12 +274,11 @@ public class ChemicalRenderer {
 				double distance = Math.sqrt(Math.pow( (secondAtomX-firstAtomX), 2) + Math.pow((secondAtomY-firstAtomY),2));
 				System.out.printf("atom 1: %d; atom 2: %d; distance: %f\n", c.getAtom(i).getAtomicNumber(), c.getAtom(j).getAtomicNumber(), distance);
 				if( distance >0) {
-					totalDistance += distance;
-					totalDistances++;
+					lowest = distance;
 				}
 			}
 		}
-		return totalDistance>0 ? Optional.of(totalDistance/totalDistances) : Optional.empty();
+		return lowest>0 ? Optional.of(lowest) : Optional.empty();
 	}
 
 	public static Optional<Double> computeAverageBondLength(Chemical c) {
