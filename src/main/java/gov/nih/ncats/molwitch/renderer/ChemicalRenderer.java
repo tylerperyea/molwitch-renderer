@@ -175,7 +175,8 @@ public class ChemicalRenderer {
 		return createImage (c, width, height, true);
 	}
 
-	public BufferedImage createImageAutoAdjust (Chemical c, int maxWidth, int minWidth, int maxHeight, int minHeight, int requestedAverageBondLength) {
+	public BufferedImage createImageAutoAdjust (Chemical c, int maxWidth, int minWidth, int maxHeight, int minHeight,
+												double requestedAverageBondLength) {
 
 		double foundAverageBondLength = computeAverageBondLength(c);
 		System.out.printf("average bond length: %f\n", foundAverageBondLength);
@@ -184,6 +185,7 @@ public class ChemicalRenderer {
 			scaleFactor= requestedAverageBondLength / foundAverageBondLength;
 		}
 
+		int arbitraryUnitScaling= 50;
 		double minX = Integer.MAX_VALUE;
 		double minY = Integer.MAX_VALUE;
 		double maxX = Integer.MIN_VALUE;
@@ -210,10 +212,14 @@ public class ChemicalRenderer {
 		ySpread= scaleFactor*ySpread;
 		System.out.printf("scaled xSpread: %f.  ySpread: %f \n", xSpread, ySpread);
 		double averageSpread = (xSpread+ySpread)/2;
-		int width= (int) Math.round( xSpread);//size * xSpread/averageSpread
+		int width= arbitraryUnitScaling* (int) Math.round( xSpread);//size * xSpread/averageSpread
+		int height=arbitraryUnitScaling* (int) Math.round(ySpread);//(size * ySpread/averageSpread
+		System.out.printf("initial width: %d; height: %d\n", width, height);
 		if(width<minWidth) width=minWidth;
-		int height= (int) Math.round(ySpread);//(size * ySpread/averageSpread
+		if(width>maxWidth) width=maxWidth;
+
 		if(height<minHeight) height= minHeight;
+		if(height>maxHeight) height=maxHeight;
 		System.out.printf("width: %d; height: %d\n", width, height);
 		return createImage (c, width, height, true);
 	}

@@ -58,9 +58,10 @@ public class TestRendering {
 
     @Test
     public void renderMols() throws Exception{
+        String folder ="images\\";
         List<String> molNames = Arrays.asList("EU9DD7762T", "NH393K3YNR" /*tall*/, "MNJ7VPT2R5" /*long*/, "MNJ7VPT2R5_mult",
                 "Structure2D_CID_118984375"/*insulin -- large!*/, "water", "charged_radical_isotopic_water",
-                "water_double2", "Y9WL8QN3ZB" /*polymer*/,
+                "water_double2", "water_double2close", "Y9WL8QN3ZB" /*polymer*/,
                 "P88XT4IS4D", "ethane", "benzoic_acid");
         molNames.forEach(mol->{
             System.out.println("Going to render " + mol);
@@ -72,13 +73,14 @@ public class TestRendering {
                 e.printStackTrace();
             }
             renderer.setBackgroundColor(Color.white);
-            BufferedImage image=renderer.createImageAutoAdjust(c, 400, 2, 400, 2, 1);
+            BufferedImage image=renderer.createImageAutoAdjust(c, 500, 100, 500, 100, 1.5);
+                    //createImageAutoAdjust(c, 500, 200, 500, 200, 1.5);
                     //renderer.createImageAutoAdjust(c, 300);
 
             boolean result1 = false;
             try {
-
-                result1 = ImageIO.write(image, "PNG", new File(MolWitch.getModuleName() + mol +"_a6.png"));
+                result1 = ImageIO.write(image, "PNG", new File(folder +MolWitch.getModuleName()
+                        + mol +"_a9.png"));
             } catch (IOException e) {
                 e.printStackTrace();
             }

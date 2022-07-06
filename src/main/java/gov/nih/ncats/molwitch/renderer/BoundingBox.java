@@ -107,8 +107,8 @@ class BoundingBox {
 		double ySpread= maxY-minY;
 		double avgSpread = (xSpread+ySpread)/2;
 		System.out.printf("xSpread: %f, ySpread: %f, avg: %f\n", xSpread, ySpread, avgSpread);
-		double xRatio = xSpread/ySpread;
-		double yRatio = ySpread/xSpread;
+		double xRatio = ySpread==0 ? 1 : xSpread/ySpread;
+		double yRatio = xSpread==0 ? 1 : ySpread/xSpread;
 		System.out.printf("xRatio: %f, yRatio: %f\n", xRatio, yRatio);
 		double scale = 0.7;
 		xRatio = xRatio * scale;
