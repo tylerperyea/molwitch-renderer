@@ -505,6 +505,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		resize = Math.abs(Math.min(adjW, adjH));
 
 		AffineTransformParent centerTransform = ggen.makeAffineTransform();
+		System.out.printf("after ggen.makeAffineTransform();");
 
 		centerTransform.translate(ncenterX, ncenterY);
 		// centerTransform.rotate(Math.PI/9);

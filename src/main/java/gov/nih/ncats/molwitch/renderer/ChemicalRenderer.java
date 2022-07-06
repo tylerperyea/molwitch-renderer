@@ -1,7 +1,7 @@
 /*
  * NCATS-MOLWITCH-RENDERER
  *
- * Copyright 2019 NIH/NCATS
+ * Copyright 2022 NIH/NCATS
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ package gov.nih.ncats.molwitch.renderer;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -140,33 +141,17 @@ public class ChemicalRenderer {
     }
 	public BufferedImage createImageAutoAdjust (Chemical c, int size) {
 		double totalBondLength=0.0;
+		Optional<Double> averageBondLength=computeAverageBondLength(c);
+
 		for(Bond bond : c.getBonds()){
 			totalBondLength+= bond.getBondLength();
 		}
 		double avgBondLength= totalBondLength/c.getBondCount();
 		System.out.printf("average bond length: %f\n", avgBondLength);
-		double minX = Integer.MAX_VALUE;
-		double minY = Integer.MAX_VALUE;
-		double maxX = Integer.MIN_VALUE;
-		double maxY = Integer.MIN_VALUE;
-		for(Atom atom : c.getAtoms()) {
-			if( atom.getAtomCoordinates().getX() > maxX) {
-				maxX= atom.getAtomCoordinates().getX();
-			}
-			if( atom.getAtomCoordinates().getY() > maxY) {
-				maxY= atom.getAtomCoordinates().getY();
-			}
-			if( atom.getAtomCoordinates().getX() < minX) {
-				minX= atom.getAtomCoordinates().getX();
-			}
-			if( atom.getAtomCoordinates().getY() < minY) {
-				minY= atom.getAtomCoordinates().getY();
-			}
-		}
-		double xSpread = maxX-minX;
-		double ySpread = maxY - minY;
-		System.out.printf("xSpread: %f (minX: %f, maxX: %f).  ySpread: %f (minY: %f, maxY: %f)\n", xSpread, minX, maxX,
-				ySpread, minY, maxY);
+		Rectangle2D.Double bounds = computeAtomicCoordinateBounds(c);
+		double xSpread = bounds.getWidth();
+		double ySpread = bounds.getHeight();
+		System.out.printf("xSpread: %f .  ySpread: %f \n", xSpread, ySpread);
 		double averageSpread = (xSpread+ySpread)/2;
 		int width= (int) Math.round( size * xSpread/averageSpread);
 		if(width<10) width=size;
@@ -180,49 +165,41 @@ public class ChemicalRenderer {
 												double requestedAverageBondLength) {
 
 		Optional<Double> foundAverageBondLength = computeAverageBondLength(c);
-		System.out.printf("average bond length: %f\n", foundAverageBondLength);
+		System.out.printf("average bond length: %f\n", foundAverageBondLength.isPresent() ? foundAverageBondLength.get() : 0.0);
 		double scaleFactor =1.0;
-		if( foundAverageBondLength.isPresent() ) {
+		if( foundAverageBondLength.isPresent() && foundAverageBondLength.get()> 0) {
 			scaleFactor= requestedAverageBondLength / foundAverageBondLength.get();
 		}
-
-		int arbitraryUnitScaling= 50;
-		double minX = Integer.MAX_VALUE;
-		double minY = Integer.MAX_VALUE;
-		double maxX = Integer.MIN_VALUE;
-		double maxY = Integer.MIN_VALUE;
-		for(Atom atom : c.getAtoms()) {
-			if( atom.getAtomCoordinates().getX() > maxX) {
-				maxX= atom.getAtomCoordinates().getX();
-			}
-			if( atom.getAtomCoordinates().getY() > maxY) {
-				maxY= atom.getAtomCoordinates().getY();
-			}
-			if( atom.getAtomCoordinates().getX() < minX) {
-				minX= atom.getAtomCoordinates().getX();
-			}
-			if( atom.getAtomCoordinates().getY() < minY) {
-				minY= atom.getAtomCoordinates().getY();
-			}
-		}
-		double xSpread = maxX-minX;
-		double ySpread = maxY-minY;
-		System.out.printf("xSpread: %f (minX: %f, maxX: %f).  ySpread: %f (minY: %f, maxY: %f)\n", xSpread, minX, maxX,
-				ySpread, minY, maxY);
-		xSpread= scaleFactor*xSpread;
-		ySpread= scaleFactor*ySpread;
+		Rectangle2D.Double atomicCoordinateBounds = computeAtomicCoordinateBounds(c);
+		double xSpread0 = atomicCoordinateBounds.getWidth();
+		double ySpread0 = atomicCoordinateBounds.getHeight();
+		System.out.printf("xSpread0: %f.  ySpread0: %f \n", xSpread0, ySpread0);
+		double xSpread= scaleFactor*xSpread0;
+		double ySpread= scaleFactor*ySpread0;
 		System.out.printf("scaled xSpread: %f.  ySpread: %f \n", xSpread, ySpread);
-		double averageSpread = (xSpread+ySpread)/2;
-		int width= arbitraryUnitScaling* (int) Math.round( xSpread);//size * xSpread/averageSpread
-		int height=arbitraryUnitScaling* (int) Math.round(ySpread);//(size * ySpread/averageSpread
+		int width=  (int) Math.round( xSpread);
+		int height=(int) Math.round(ySpread);
 		System.out.printf("initial width: %d; height: %d\n", width, height);
 		if(width<minWidth) width=minWidth;
 		if(width>maxWidth) width=maxWidth;
 
 		if(height<minHeight) height= minHeight;
 		if(height>maxHeight) height=maxHeight;
-		System.out.printf("width: %d; height: %d\n", width, height);
-		return createImage (c, width, height, true);
+
+		//When there is one heavy atom, we see overflows.  Prevent that by checking for *spread<=0
+		if(xSpread<= 0) xSpread=1;
+		if(ySpread<= 0) ySpread=1;
+		double xScale = xSpread==1 ? 1.0 : width/xSpread;
+		double yScale = ySpread==1 ? 1.0 : height/ySpread;
+		double scaleFinal=Math.min(xScale,yScale);
+		//prevent scale from getting too big which causes an infinite loop later on
+		double max_scale = 10.0;
+		scaleFinal = Math.min(max_scale, scaleFinal);
+		width= (int) Math.round(scaleFinal*width);
+		height=(int) Math.round(scaleFinal*height);
+
+		System.out.printf("final width: %d; height: %d. scaleFinal: %f\n", width, height, scaleFinal);
+		return createImage (c, width, height, false);
 	}
 
 	public BufferedImage createImage (File inputMol, int width, int height, boolean round) throws IOException{
@@ -263,7 +240,7 @@ public class ChemicalRenderer {
 	}
 
 	public static Optional<Double> computeLowestInterAtomDistance(Chemical c){
-		double lowest =0.0d;
+		Double lowest =null;
 		for(int i=0; i<c.getAtomCount();i++){
 			for(int j=i+1; j<c.getAtomCount();j++){
 				double firstAtomX= c.getAtom(i).getAtomCoordinates().getX();
@@ -272,8 +249,11 @@ public class ChemicalRenderer {
 				double secondAtomY= c.getAtom(j).getAtomCoordinates().getY();
 
 				double distance = Math.sqrt(Math.pow( (secondAtomX-firstAtomX), 2) + Math.pow((secondAtomY-firstAtomY),2));
-				System.out.printf("atom 1: %d; atom 2: %d; distance: %f\n", c.getAtom(i).getAtomicNumber(), c.getAtom(j).getAtomicNumber(), distance);
-				if( distance >0) {
+				System.out.printf("atom 1: %d x: %f, y: %f; atom 2: %d x: %f, y: %f; distance: %f\n",
+						c.getAtom(i).getAtomicNumber(), c.getAtom(i).getAtomCoordinates().getX(), c.getAtom(i).getAtomCoordinates().getY(),
+						c.getAtom(j).getAtomicNumber(), c.getAtom(j).getAtomCoordinates().getX(), c.getAtom(j).getAtomCoordinates().getY(),
+						distance);
+				if( distance > 0 && (lowest==null || distance< lowest)) {
 					lowest = distance;
 				}
 			}
@@ -290,5 +270,31 @@ public class ChemicalRenderer {
 			return Optional.of( totalBondLength / c.getBondCount());
 		}
 		return Optional.empty();
+	}
+
+	public static Rectangle2D.Double computeAtomicCoordinateBounds(Chemical chemical) {
+		double minX = Integer.MAX_VALUE;
+		double minY = Integer.MAX_VALUE;
+		double maxX = Integer.MIN_VALUE;
+		double maxY = Integer.MIN_VALUE;
+		for(Atom atom : chemical.getAtoms()) {
+			if( atom.getAtomCoordinates().getX() > maxX) {
+				maxX= atom.getAtomCoordinates().getX();
+			}
+			if( atom.getAtomCoordinates().getY() > maxY) {
+				maxY= atom.getAtomCoordinates().getY();
+			}
+			if( atom.getAtomCoordinates().getX() < minX) {
+				minX= atom.getAtomCoordinates().getX();
+			}
+			if( atom.getAtomCoordinates().getY() < minY) {
+				minY= atom.getAtomCoordinates().getY();
+			}
+		}
+		double xSpread = maxX - minX;
+		double ySpread = maxY - minY;
+		System.out.printf("xSpread: %f (minX: %f, maxX: %f).  ySpread: %f (minY: %f, maxY: %f)\n", xSpread, minX, maxX,
+				ySpread, minY, maxY);
+		return new Rectangle2D.Double(minX, minY, xSpread, ySpread);
 	}
 }

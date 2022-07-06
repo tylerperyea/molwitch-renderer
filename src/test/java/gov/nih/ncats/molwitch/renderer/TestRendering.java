@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -72,14 +73,14 @@ public class TestRendering {
                 e.printStackTrace();
             }
             renderer.setBackgroundColor(Color.white);
-            BufferedImage image=renderer.createImageAutoAdjust(c, 500, 100, 500, 100, 1.5);
-                    //createImageAutoAdjust(c, 500, 200, 500, 200, 1.5);
+            BufferedImage image=renderer.createImageAutoAdjust(c, 500, 200, 500, 200, 5);
+                    //createImageAutoAdjust(c, 500, 200, 500, 200, 25);
                     //renderer.createImageAutoAdjust(c, 300);
 
             boolean result1 = false;
             try {
                 result1 = ImageIO.write(image, "PNG", new File(folder +MolWitch.getModuleName()
-                        + mol +"_a9.png"));
+                        + mol +"_a11.png"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -90,8 +91,8 @@ public class TestRendering {
     }
 
     @Test
-    public void testComputeAverageInteratomDistance() {
-        String mol="water_double200";
+    public void testComputeAverageInterAtomDistance() {
+        String mol="water_triple";
         Chemical c = null;
         try {
             c = Chemical.parseMol(new File(getClass().getResource("/" + mol + ".mol").getFile()));
@@ -101,6 +102,30 @@ public class TestRendering {
         double min = ChemicalRenderer.computeLowestInterAtomDistance(c).get();
         System.out.println("lowest interatomic distance " + min);
         Assert.assertTrue(min>= 100);
+    }
+
+    @Test
+    public void testComputeBounds() throws Exception{
+        String folder ="images\\";
+        List<String> molNames = Arrays.asList("EU9DD7762T", "NH393K3YNR" /*tall*/, "MNJ7VPT2R5" /*long*/, "MNJ7VPT2R5_mult",
+                "Structure2D_CID_118984375"/*insulin -- large!*/, "water", "charged_radical_isotopic_water",
+                "water_double2", "water_double2close", "Y9WL8QN3ZB" /*polymer*/,
+                "P88XT4IS4D", "ethane", "benzoic_acid");
+        molNames.forEach(mol->{
+            System.out.println("Going to handle " + mol);
+            ChemicalRenderer renderer = new ChemicalRenderer();
+            Chemical c = null;
+            try {
+                c = Chemical.parseMol(new File(getClass().getResource("/" + mol + ".mol").getFile()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Rectangle2D.Double rectangle =ChemicalRenderer.computeAtomicCoordinateBounds(c);
+            System.out.printf("box for %s: x=%f, y=%f, width=%f, height=%f\n", mol, rectangle.x,
+                    rectangle.y, rectangle.width, rectangle.height);
+
+            Assert.assertTrue(rectangle !=null);
+        });
     }
 
 }
