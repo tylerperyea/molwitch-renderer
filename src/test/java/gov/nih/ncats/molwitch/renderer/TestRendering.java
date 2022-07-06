@@ -22,9 +22,7 @@ import gov.nih.ncats.molwitch.Chemical;
 import gov.nih.ncats.molwitch.MolWitch;
 import org.junit.Assert;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -32,7 +30,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 
@@ -61,8 +58,12 @@ public class TestRendering {
 
     @Test
     public void renderMols() throws Exception{
-        List<String> molNames = Arrays.asList("EU9DD7762T", "P88XT4IS4D", "ethane", "benzoic_acid");
+        List<String> molNames = Arrays.asList("EU9DD7762T", "NH393K3YNR" /*tall*/, "MNJ7VPT2R5" /*long*/, "MNJ7VPT2R5_mult",
+                "Structure2D_CID_118984375"/*insulin -- large!*/, "water", "charged_radical_isotopic_water",
+                "water_double2", "Y9WL8QN3ZB" /*polymer*/,
+                "P88XT4IS4D", "ethane", "benzoic_acid");
         molNames.forEach(mol->{
+            System.out.println("Going to render " + mol);
             ChemicalRenderer renderer = new ChemicalRenderer();
             Chemical c = null;
             try {
@@ -71,11 +72,13 @@ public class TestRendering {
                 e.printStackTrace();
             }
             renderer.setBackgroundColor(Color.white);
-            BufferedImage image=renderer.createImage(c, 600);
+            BufferedImage image=renderer.createImageAutoAdjust(c, 400, 2, 400, 2, 1);
+                    //renderer.createImageAutoAdjust(c, 300);
 
             boolean result1 = false;
             try {
-                result1 = ImageIO.write(image, "PNG", new File(MolWitch.getModuleName() + mol +"r.png"));
+
+                result1 = ImageIO.write(image, "PNG", new File(MolWitch.getModuleName() + mol +"_a6.png"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -83,6 +86,19 @@ public class TestRendering {
 
         });
 
+    }
+
+    @Test
+    public void testComputeAverageInteratomDistance() {
+        String mol="water_double2";
+        Chemical c = null;
+        try {
+            c = Chemical.parseMol(new File(getClass().getResource("/" + mol + ".mol").getFile()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        double avg = ChemicalRenderer.computeAverageInteratomDistance(c);
+        Assert.assertTrue(avg>= 100);
     }
 
 }

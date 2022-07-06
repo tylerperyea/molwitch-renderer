@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.*;
+import gov.nih.ncats.molwitch.Atom;
+import gov.nih.ncats.molwitch.Bond;
 import gov.nih.ncats.molwitch.Chemical;
 
 public class ChemicalRenderer {
@@ -134,7 +136,88 @@ public class ChemicalRenderer {
 	} 
 	public BufferedImage createImage (Chemical c, int size) {
     		return createImage (c, size, size, true);
-    }  
+    }
+	public BufferedImage createImageAutoAdjust (Chemical c, int size) {
+		double totalBondLength=0.0;
+		for(Bond bond : c.getBonds()){
+			totalBondLength+= bond.getBondLength();
+		}
+		double avgBondLength= totalBondLength/c.getBondCount();
+		System.out.printf("average bond length: %f\n", avgBondLength);
+		double minX = Integer.MAX_VALUE;
+		double minY = Integer.MAX_VALUE;
+		double maxX = Integer.MIN_VALUE;
+		double maxY = Integer.MIN_VALUE;
+		for(Atom atom : c.getAtoms()) {
+			if( atom.getAtomCoordinates().getX() > maxX) {
+				maxX= atom.getAtomCoordinates().getX();
+			}
+			if( atom.getAtomCoordinates().getY() > maxY) {
+				maxY= atom.getAtomCoordinates().getY();
+			}
+			if( atom.getAtomCoordinates().getX() < minX) {
+				minX= atom.getAtomCoordinates().getX();
+			}
+			if( atom.getAtomCoordinates().getY() < minY) {
+				minY= atom.getAtomCoordinates().getY();
+			}
+		}
+		double xSpread = maxX-minX;
+		double ySpread = maxY - minY;
+		System.out.printf("xSpread: %f (minX: %f, maxX: %f).  ySpread: %f (minY: %f, maxY: %f)\n", xSpread, minX, maxX,
+				ySpread, minY, maxY);
+		double averageSpread = (xSpread+ySpread)/2;
+		int width= (int) Math.round( size * xSpread/averageSpread);
+		if(width<10) width=size;
+		int height= (int) Math.round(size * ySpread/averageSpread);
+		if(height<10) height= size;
+		System.out.printf("width: %d; height: %d\n", width, height);
+		return createImage (c, width, height, true);
+	}
+
+	public BufferedImage createImageAutoAdjust (Chemical c, int maxWidth, int minWidth, int maxHeight, int minHeight, int requestedAverageBondLength) {
+
+		double foundAverageBondLength = computeAverageBondLength(c);
+		System.out.printf("average bond length: %f\n", foundAverageBondLength);
+		double scaleFactor =1.0;
+		if( c.getAtomCount() > 1 ) {
+			scaleFactor= requestedAverageBondLength / foundAverageBondLength;
+		}
+
+		double minX = Integer.MAX_VALUE;
+		double minY = Integer.MAX_VALUE;
+		double maxX = Integer.MIN_VALUE;
+		double maxY = Integer.MIN_VALUE;
+		for(Atom atom : c.getAtoms()) {
+			if( atom.getAtomCoordinates().getX() > maxX) {
+				maxX= atom.getAtomCoordinates().getX();
+			}
+			if( atom.getAtomCoordinates().getY() > maxY) {
+				maxY= atom.getAtomCoordinates().getY();
+			}
+			if( atom.getAtomCoordinates().getX() < minX) {
+				minX= atom.getAtomCoordinates().getX();
+			}
+			if( atom.getAtomCoordinates().getY() < minY) {
+				minY= atom.getAtomCoordinates().getY();
+			}
+		}
+		double xSpread = maxX-minX;
+		double ySpread = maxY-minY;
+		System.out.printf("xSpread: %f (minX: %f, maxX: %f).  ySpread: %f (minY: %f, maxY: %f)\n", xSpread, minX, maxX,
+				ySpread, minY, maxY);
+		xSpread= scaleFactor*xSpread;
+		ySpread= scaleFactor*ySpread;
+		System.out.printf("scaled xSpread: %f.  ySpread: %f \n", xSpread, ySpread);
+		double averageSpread = (xSpread+ySpread)/2;
+		int width= (int) Math.round( xSpread);//size * xSpread/averageSpread
+		if(width<minWidth) width=minWidth;
+		int height= (int) Math.round(ySpread);//(size * ySpread/averageSpread
+		if(height<minHeight) height= minHeight;
+		System.out.printf("width: %d; height: %d\n", width, height);
+		return createImage (c, width, height, true);
+	}
+
 	public BufferedImage createImage (File inputMol, int width, int height, boolean round) throws IOException{
 	    return createImage(Chemical.parseMol(inputMol), width, height, round);
 	}
@@ -153,4 +236,35 @@ public class ChemicalRenderer {
     } 
 
 
+	public static double computeAverageInteratomDistance(Chemical c){
+		int totalDistances = 0;
+		double totalDistance =0.0d;
+		for(int i=0; i<c.getAtomCount();i++){
+			for(int j=i+1; j<c.getAtomCount();j++){
+				double firstAtomX= c.getAtom(i).getAtomCoordinates().getX();
+				double firstAtomY= c.getAtom(i).getAtomCoordinates().getY();
+				double secondAtomX= c.getAtom(j).getAtomCoordinates().getX();
+				double secondAtomY= c.getAtom(j).getAtomCoordinates().getY();
+
+				double distance = Math.sqrt(Math.pow( (secondAtomX-firstAtomX), 2) + Math.pow((secondAtomY-firstAtomY),2));
+				System.out.printf("atom 1: %d; atom 2: %d; distance: %f\n", c.getAtom(i).getAtomicNumber(), c.getAtom(j).getAtomicNumber(), distance);
+				totalDistance+= distance;
+				totalDistances++;
+			}
+		}
+		return totalDistance/totalDistances;
+	}
+
+	public static double computeAverageBondLength(Chemical c) {
+		double totalBondLength=0.0;
+		if( c.getBondCount()>0) {
+			for (Bond bond : c.getBonds()) {
+				totalBondLength += bond.getBondLength();
+			}
+			return totalBondLength / c.getBondCount();
+		} else if( c.getAtomCount()> 1){
+			return computeAverageInteratomDistance(c);
+		}
+		return 0.0d;
+	}
 }

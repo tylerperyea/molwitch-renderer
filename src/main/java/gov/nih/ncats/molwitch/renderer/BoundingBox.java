@@ -126,7 +126,7 @@ class BoundingBox {
 		double highY=(maxY-minY)+(2*yPadding);
 		return new Rectangle2D.Double(lowX, lowY, highX, highY);
 	}
-	
+
 	public static Rectangle2D computePaddedBoundingBoxForCoordinates(Iterable<AtomCoordinates> c, double padding) {
 		double minX = Double.POSITIVE_INFINITY;
 		double minY = Double.POSITIVE_INFINITY;
