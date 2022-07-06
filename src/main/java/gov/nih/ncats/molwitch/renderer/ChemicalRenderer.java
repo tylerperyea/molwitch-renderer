@@ -158,7 +158,7 @@ public class ChemicalRenderer {
 		int height= (int) Math.round(size * ySpread/averageSpread);
 		if(height<10) height= size;
 		System.out.printf("width: %d; height: %d\n", width, height);
-		return createImage (c, width, height, true);
+		return createImage (c, width, height,false);
 	}
 
 	public BufferedImage createImageAutoAdjust (Chemical c, int maxWidth, int minWidth, int maxHeight, int minHeight,
@@ -189,15 +189,15 @@ public class ChemicalRenderer {
 		//When there is one heavy atom, we see overflows.  Prevent that by checking for *spread<=0
 		if(xSpread<= 0) xSpread=1;
 		if(ySpread<= 0) ySpread=1;
-		double xScale = xSpread==1 ? 1.0 : width/xSpread;
-		double yScale = ySpread==1 ? 1.0 : height/ySpread;
+		double xScale =  width/xSpread; //xSpread==1 ? 1.0 :
+		double yScale =  height/ySpread;//ySpread==1 ? 1.0 :
 		double scaleFinal=Math.min(xScale,yScale);
-		//prevent scale from getting too big which causes an infinite loop later on
-		double max_scale = 10.0;
-		scaleFinal = Math.min(max_scale, scaleFinal);
-		width= (int) Math.round(scaleFinal*width);
-		height=(int) Math.round(scaleFinal*height);
+		width= (int) Math.round(scaleFinal*xSpread);
+		height=(int) Math.round(scaleFinal*ySpread);
 
+		//one last check
+		if(height< minHeight) height= minHeight;
+		if(width< minWidth) width=minWidth;
 		System.out.printf("final width: %d; height: %d. scaleFinal: %f\n", width, height, scaleFinal);
 		return createImage (c, width, height, false);
 	}

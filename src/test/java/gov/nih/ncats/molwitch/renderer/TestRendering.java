@@ -73,14 +73,14 @@ public class TestRendering {
                 e.printStackTrace();
             }
             renderer.setBackgroundColor(Color.white);
-            BufferedImage image=renderer.createImageAutoAdjust(c, 500, 200, 500, 200, 5);
-                    //createImageAutoAdjust(c, 500, 200, 500, 200, 25);
+            BufferedImage image=renderer.createImageAutoAdjust(c, 500, 200, 500, 200, 25);
+                    //createImageAutoAdjust(c, 500, 200, 500, 200, 5);
                     //renderer.createImageAutoAdjust(c, 300);
 
             boolean result1 = false;
             try {
                 result1 = ImageIO.write(image, "PNG", new File(folder +MolWitch.getModuleName()
-                        + mol +"_a11.png"));
+                        + mol +"_5parm25.png"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
