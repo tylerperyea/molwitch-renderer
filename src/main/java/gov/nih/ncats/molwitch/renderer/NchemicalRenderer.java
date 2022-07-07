@@ -498,18 +498,18 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				g2.getFontMetrics(defaultFont.deriveFont((float) (DEF_FONT_PERCENT * resize * BONDAVG))).getHeight(),
 				0);
 		System.out.printf("original newMarge: %d\n", newMarge);
-		newMarge=0;
+		newMarge=newMarge/3;
 
 		adjW = (width - wMarge - newMarge) / cwidth;
 		adjH = (height - hMarge - newMarge) / cheight;
 		resize = Math.abs(Math.min(adjW, adjH));
 
 		AffineTransformParent centerTransform = ggen.makeAffineTransform();
-		System.out.printf("after ggen.makeAffineTransform();");
+		System.out.println("after ggen.makeAffineTransform(); resize: " + resize);
 
 		centerTransform.translate(ncenterX, ncenterY);
 		// centerTransform.rotate(Math.PI/9);
-		centerTransform.scale(resize, -resize);
+		centerTransform.scale((resize*0.95), -resize);
 		centerTransform.translate(-centerX, -centerY);
 
 		float bondWidth = (float) (DEF_STROKE_PERCENT * resize * BONDAVG);
