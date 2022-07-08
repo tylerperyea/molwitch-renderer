@@ -204,11 +204,14 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		
 		while(firstPass){
 		Graphics2DTemp g2 = new Graphics2DTemp(g9);	
+		if(realBounds!=null){
+			firstPass=false;
+		}
 		//TODO: delete, only debugging
 		//firstPass=false;
 		
 		if(firstPass){
-			//g2.disable();
+			g2.disable();
 		}		
 		
 		
@@ -1199,7 +1202,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		 
 		
 		realBounds = g2.getBounds().orElse(null);
-		firstPass=false;
+			if(realBounds==null)break;
 			
 		}
 	}
