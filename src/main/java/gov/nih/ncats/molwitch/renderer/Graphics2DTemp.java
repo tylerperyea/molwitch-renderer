@@ -56,6 +56,7 @@ import java.util.Map;
 
 class Graphics2DTemp{
 	
+		private boolean _disabled=false;
 	        private Rectangle2D.Double _bounds=null;
 	
 	
@@ -1204,6 +1205,13 @@ class Graphics2DTemp{
 			_delagate=g2;
 		}
 	
+	        public void disable(){
+			this._disabled=true;
+		}
+		
+	        public void enable(){
+			this._disabled=false;
+		}
 		public void updateBounds(Rectangle2D r){
 			Rectangle2D.Double rd=Rectangle2D.Double(r.getX(),r.getY(),r.getWidth(),r.getHeight());
 			if(_bounds==null){
@@ -1253,8 +1261,11 @@ class Graphics2DTemp{
 		}
 
 		public void drawd(Shape s) {
+		
 			updateBounds(s.getBounds2D());
-			_delagate.draw(s);
+			if(!_disabled){
+				_delagate.draw(s);
+			}
 		}
 		public void drawP(ShapeParent s) {
 			drawd(ShapeWrapper.toShape(s));
@@ -1279,17 +1290,24 @@ class Graphics2DTemp{
 		}
 
 		public void drawGlyphVector(GlyphVector g, float x, float y) {
-			_delagate.drawGlyphVector(g, x, y);
+			updateBounds(g.getVisualBounds());
+			if(!_disabled){
+				_delagate.drawGlyphVector(g, x, y);
+			}
 		}
 
 		public void drawImage(BufferedImage img, BufferedImageOp op, int x,
 				int y) {
-			_delagate.drawImage(img, op, x, y);
+			if(!_disabled){
+				_delagate.drawImage(img, op, x, y);
+			}
 		}
 
 		public boolean drawImage(Image img, AffineTransform xform,
 				ImageObserver obs) {
-			return _delagate.drawImage(img, xform, obs);
+			if(!_disabled){
+				return _delagate.drawImage(img, xform, obs);
+			}
 		}
 
 		public boolean drawImage(Image img, int x, int y, Color bgcolor,
@@ -1390,7 +1408,9 @@ class Graphics2DTemp{
 		}
 		private void fill(Shape s) {
 			updateBounds(s.getBounds2D());
-			_delagate.fill(s);
+			if(!_disabled){
+				_delagate.fill(s);
+			}
 		}
 
 		public void fill3DRect(int x, int y, int width, int height,
