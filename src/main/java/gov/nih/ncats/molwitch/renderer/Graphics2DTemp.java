@@ -56,6 +56,9 @@ import java.util.Map;
 
 class Graphics2DTemp{
 	
+	        private Rectangle2D.Double _bounds=null;
+	
+	
 		public Graphics2D _delagate;
 		public static class AWTGeomGenerator extends GeomGenerator{
 
@@ -1200,6 +1203,22 @@ class Graphics2DTemp{
 		public Graphics2DTemp(Graphics2D g2){
 			_delagate=g2;
 		}
+	
+		public void updateBounds(Rectangle2D r){
+			Rectangle2D.Double rd=Rectangle2D.Double(r.getX(),r.getY(),r.getWidth(),r.getHeight());
+			if(_bounds==null){
+				_bounds=rd;
+			}else{
+				//increase bounds
+				_bounds.add(rd);
+			}
+		}
+		public void clearBounds(){
+			_bounds=null;
+		}
+		public Optional<Rectangle2D.Double> getBounds(){
+			return Optional.ofNullable(_bounds);
+		}
 		
 		public void addRenderingHints(Map<?, ?> hints) {
 			_delagate.addRenderingHints(hints);
@@ -1234,6 +1253,7 @@ class Graphics2DTemp{
 		}
 
 		public void drawd(Shape s) {
+			updateBounds(s.getBounds2D());
 			_delagate.draw(s);
 		}
 		public void drawP(ShapeParent s) {
@@ -1369,6 +1389,7 @@ class Graphics2DTemp{
 			fill(ShapeWrapper.toShape(s));
 		}
 		private void fill(Shape s) {
+			updateBounds(s.getBounds2D());
 			_delagate.fill(s);
 		}
 
