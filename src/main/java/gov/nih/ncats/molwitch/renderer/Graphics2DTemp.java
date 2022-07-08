@@ -53,6 +53,7 @@ import java.awt.image.RenderedImage;
 import java.awt.image.renderable.RenderableImage;
 import java.text.AttributedCharacterIterator;
 import java.util.Map;
+import java.util.Optional;
 
 class Graphics2DTemp{
 	
@@ -1213,7 +1214,7 @@ class Graphics2DTemp{
 			this._disabled=false;
 		}
 		public void updateBounds(Rectangle2D r){
-			Rectangle2D.Double rd=Rectangle2D.Double(r.getX(),r.getY(),r.getWidth(),r.getHeight());
+			Rectangle2D.Double rd=new Rectangle2D.Double(r.getX(),r.getY(),r.getWidth(),r.getHeight());
 			if(_bounds==null){
 				_bounds=rd;
 			}else{
@@ -1308,6 +1309,7 @@ class Graphics2DTemp{
 			if(!_disabled){
 				return _delagate.drawImage(img, xform, obs);
 			}
+			return false;
 		}
 
 		public boolean drawImage(Image img, int x, int y, Color bgcolor,

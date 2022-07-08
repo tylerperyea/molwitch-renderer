@@ -35,6 +35,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.font.GlyphVector;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -548,7 +549,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			af.translate(bx, by);
 			
 			//TODO It may be that it should be preConcatenate
-			centerTransform.concatenate(af);			
+			//centerTransform.concatenate(new Graphics2DTemp.AffineTransformWrapper(af) );
 		}
 		
 		

@@ -80,7 +80,7 @@ public class TestRendering {
             boolean result1 = false;
             try {
                 result1 = ImageIO.write(image, "PNG", new File(folder +MolWitch.getModuleName()
-                        + mol +"_5parm25_nw0.95.png"));
+                        + mol +"_5parm25_nw4.png"));
                 System.out.println("wrote");
             } catch (IOException e) {
                 e.printStackTrace();
