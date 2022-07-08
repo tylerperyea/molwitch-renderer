@@ -177,6 +177,10 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 	 */
 	@Override
 	public void renderChem(Graphics2D g9, Chemical c, int x, int y, int width, int height) {
+		
+		boolean firstPass=true;
+		Rectangle2D.Double realBounds=null;
+		
 		//exit early if no atoms with "no structure" message
 		if(c.getAtomCount() ==0){
 
@@ -195,7 +199,15 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			g9.drawString("NO STRUCTURE", (width-x)/2 -(int)(textWidth/2),(height-y)/2);
 			return;
 		}
-		Graphics2DTemp g2 = new Graphics2DTemp(g9);
+		
+		
+		while(firstPass){
+		Graphics2DTemp g2 = new Graphics2DTemp(g9);	
+		if(firstPass){
+			g2.disable();
+		}		
+		
+		
 		String s = c.getProperty(protProperty);
 		if (s != null) {
 			if (!s.trim().equals("")) {
@@ -507,10 +519,39 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		AffineTransformParent centerTransform = ggen.makeAffineTransform();
 		System.out.println("after ggen.makeAffineTransform(); resize: " + resize);
 
+		//this creates the basic approx bounds
 		centerTransform.translate(ncenterX, ncenterY);
 		// centerTransform.rotate(Math.PI/9);
-		centerTransform.scale((resize*0.95), -resize);
+		centerTransform.scale(resize, -resize);
 		centerTransform.translate(-centerX, -centerY);
+		
+		double paddingX=1;
+		double paddingY=1;
+		
+		
+		if(!firstPass && realBounds!=null){
+			
+			double xmin = realBounds.getMinX();
+			double xmax = realBounds.getMaxX();
+			double ymin = realBounds.getMinY();
+			double ymax = realBounds.getMaxY();
+			double centerx = (xmax+xmin)/2;
+			double centery = (ymax+ymin)/2;
+			double ssx = (height-2*paddingY)/(ymax-ymin);
+			double ssy = (width-2*paddingX)/(xmax-xmin);
+			double theRealScale = Math.min(ssx,ssy);
+			double bx = (width*0.5)-theRealScale*(centerx);
+			double by = (height*0.5)-theRealScale*(centery);
+			AffineTransform af = new AffineTransform();
+			//TODO it may be that the order of these should be swapped
+			af.scale(theRealScale, theRealScale);
+			af.translate(bx, by);
+			
+			//TODO It may be that it should be preConcatenate
+			centerTransform.concatenate(af);			
+		}
+		
+		
 
 		float bondWidth = (float) (DEF_STROKE_PERCENT * resize * BONDAVG);
 		float braketFrac = 0.7f;
@@ -1152,6 +1193,11 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 
 		}
 		 
+		
+		realBounds = g2.getBounds().orElse(null);
+		firstPass=false;
+			
+		}
 	}
 
 	private void drawBracketedSgroup(Graphics2DTemp g2, float maxX, float maxY, float minX, float minY, AffineTransformParent centerTransform, BasicStroke solidThin, float fsize, SGroup cg, Rectangle2D.Float rect) {
