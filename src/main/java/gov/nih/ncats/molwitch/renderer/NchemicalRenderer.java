@@ -206,6 +206,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		Graphics2DTemp g2 = new Graphics2DTemp(g9);	
 		if(realBounds!=null){
 			firstPass=false;
+			g2.drawd(realBounds);
 		}
 		//TODO: delete, only debugging
 		//firstPass=false;
