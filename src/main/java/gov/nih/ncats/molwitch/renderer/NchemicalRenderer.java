@@ -204,6 +204,9 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		
 		while(firstPass){
 		Graphics2DTemp g2 = new Graphics2DTemp(g9);	
+		//TODO: delete, only debugging
+		firstPass=false;
+		
 		if(firstPass){
 			g2.disable();
 		}		
