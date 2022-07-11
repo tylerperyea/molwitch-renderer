@@ -206,7 +206,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		Graphics2DTemp g2 = new Graphics2DTemp(g9);	
 		if(realBounds!=null){
 			firstPass=false;
-			g2.drawd(realBounds);
+			//g2.drawd(realBounds);
 		}
 		//TODO: delete, only debugging
 		//firstPass=false;
@@ -550,13 +550,21 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			double theRealScale = Math.min(ssx,ssy);
 			double bx = (width*0.5)-theRealScale*(centerx);
 			double by = (height*0.5)-theRealScale*(centery);
+			//TODO it may be that the order of these should be swapped
+			System.out.println("theRealScale: " + theRealScale);
+			//New
 			AffineTransform af = new AffineTransform();
 			//TODO it may be that the order of these should be swapped
-			af.scale(theRealScale, theRealScale);
 			af.translate(bx, by);
-			
+			af.scale(theRealScale, theRealScale);
+			//af.translate(0, 0);
+//			af.scale(theRealScale*1.5, theRealScale*1.5);
+
+
 			//TODO It may be that it should be preConcatenate
-			//centerTransform.concatenate(new Graphics2DTemp.AffineTransformWrapper(af) );
+			Graphics2DTemp.AffineTransformWrapper waf= new Graphics2DTemp.AffineTransformWrapper(af);
+			waf.concatenate(centerTransform);
+			centerTransform =waf;
 		}
 		
 		
@@ -1124,7 +1132,8 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			if(drawSuperatomLabels){
 				for(SGroup sgroup : c.getSGroups()){
 					if(sgroup.getType() == SGroupType.SUPERATOM_OR_ABBREVIATION){
-						sgroup.getSubscript().ifPresent( text->{
+						AffineTransformParent finalCenterTransform = centerTransform;
+						sgroup.getSubscript().ifPresent(text->{
 
 							Optional<Atom> atomToUseCoordsOf = sgroup.getBonds().map(b->{
 								Atom a = b.getAtom1();
@@ -1136,7 +1145,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 							}).findFirst();
 							if(atomToUseCoordsOf.isPresent()){
 								double[] p = new double[2];
-								centerTransform.transform(atomToUseCoordsOf.get().getAtomCoordinates().xy(), 0, p, 0, 1);
+								finalCenterTransform.transform(atomToUseCoordsOf.get().getAtomCoordinates().xy(), 0, p, 0, 1);
 								String formattedText = formatSuperAtomLabel(text);
 
 								FontMetrics metrics = g2.getFontMetrics();

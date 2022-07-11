@@ -62,10 +62,11 @@ public class TestRendering {
         List<String> molNames = Arrays.asList("EU9DD7762T", "NH393K3YNR" /*tall*/, "MNJ7VPT2R5" /*long*/, "MNJ7VPT2R5_mult",
                 "Structure2D_CID_118984375"/*insulin -- large!*/, "water", "charged_radical_isotopic_water",
                 "water_double2", "water_double2close" /*35 units apart*/, "water_double_near" /*2 units apart*/, "Y9WL8QN3ZB" /*polymer*/,
-                "P88XT4IS4D", "ethane", "benzoic_acid");
+                "P88XT4IS4D", "ethane", "benzoic_acid", "4ELV7Z65AP", "ammonia_not_centered", "ammonia_centered");
         molNames.forEach(mol->{
             System.out.println("Going to render " + mol);
             ChemicalRenderer renderer = new ChemicalRenderer();
+            renderer.setShadowVisible(false);
             Chemical c = null;
             try {
                 c = Chemical.parseMol(new File(getClass().getResource("/" + mol + ".mol").getFile()));
@@ -73,14 +74,16 @@ public class TestRendering {
                 e.printStackTrace();
             }
             renderer.setBackgroundColor(Color.white);
-            BufferedImage image=renderer.createImageAutoAdjust(c, 500, 200, 500, 200, 25);
+            renderer.setShadowVisible(false);
+            BufferedImage image=renderer.createImage(c, 400);
+
                     //createImageAutoAdjust(c, 500, 200, 500, 200, 5);
                     //renderer.createImageAutoAdjust(c, 300);
             System.out.println("completed image creation");
             boolean result1 = false;
             try {
                 result1 = ImageIO.write(image, "PNG", new File(folder +MolWitch.getModuleName()
-                        + mol +"_5parm25_nw4.png"));
+                        + mol +"_5parm25_test16.png"));
                 System.out.println("wrote");
             } catch (IOException e) {
                 e.printStackTrace();

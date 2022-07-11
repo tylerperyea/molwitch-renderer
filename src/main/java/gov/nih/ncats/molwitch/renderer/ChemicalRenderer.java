@@ -202,6 +202,46 @@ public class ChemicalRenderer {
 		return createImage (c, width, height, false);
 	}
 
+	public Rectangle2D.Double getApproximateBoundsFor (Chemical c, int maxWidth, int minWidth, int maxHeight, int minHeight,
+												double requestedAverageBondLength) {
+		Optional<Double> foundAverageBondLength = computeAverageBondLength(c);
+		System.out.printf("average bond length: %f\n", foundAverageBondLength.isPresent() ? foundAverageBondLength.get() : 0.0);
+		double scaleFactor =1.0;
+		if( foundAverageBondLength.isPresent() && foundAverageBondLength.get()> 0) {
+			scaleFactor= requestedAverageBondLength / foundAverageBondLength.get();
+		}
+		Rectangle2D.Double atomicCoordinateBounds = computeAtomicCoordinateBounds(c);
+		double xSpread0 = atomicCoordinateBounds.getWidth();
+		double ySpread0 = atomicCoordinateBounds.getHeight();
+		System.out.printf("xSpread0: %f.  ySpread0: %f \n", xSpread0, ySpread0);
+		double xSpread= scaleFactor*xSpread0;
+		double ySpread= scaleFactor*ySpread0;
+		System.out.printf("scaled xSpread: %f.  ySpread: %f \n", xSpread, ySpread);
+		int width=  (int) Math.round( xSpread);
+		int height=(int) Math.round(ySpread);
+		System.out.printf("initial width: %d; height: %d\n", width, height);
+		if(width<minWidth) width=minWidth;
+		if(width>maxWidth) width=maxWidth;
+
+		if(height<minHeight) height= minHeight;
+		if(height>maxHeight) height=maxHeight;
+
+		//When there is one heavy atom, we see overflows.  Prevent that by checking for *spread<=0
+		if(xSpread<= 0) xSpread=1;
+		if(ySpread<= 0) ySpread=1;
+		double xScale =  width/xSpread; //xSpread==1 ? 1.0 :
+		double yScale =  height/ySpread;//ySpread==1 ? 1.0 :
+		double scaleFinal=Math.min(xScale,yScale);
+		width= (int) Math.round(scaleFinal*xSpread);
+		height=(int) Math.round(scaleFinal*ySpread);
+
+		//one last check
+		if(height< minHeight) height= minHeight;
+		if(width< minWidth) width=minWidth;
+		System.out.printf("final width: %d; height: %d. scaleFinal: %f\n", width, height, scaleFinal);
+		return new Rectangle2D.Double(0, 0, width, height );
+	}
+
 	public BufferedImage createImage (File inputMol, int width, int height, boolean round) throws IOException{
 	    return createImage(Chemical.parseMol(inputMol), width, height, round);
 	}

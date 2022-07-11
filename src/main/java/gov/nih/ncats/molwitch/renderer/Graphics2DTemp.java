@@ -1291,7 +1291,9 @@ class Graphics2DTemp{
 		}
 
 		public void drawGlyphVector(GlyphVector g, float x, float y) {
-			updateBounds(g.getVisualBounds());
+			//updateBounds(g.getVisualBounds());
+			Rectangle2D rr = g.getVisualBounds();
+			updateBounds(new Rectangle2D.Double(rr.getMinX()+x, rr.getMinY()+y, rr.getWidth(), rr.getHeight()));
 			if(!_disabled){
 				_delagate.drawGlyphVector(g, x, y);
 			}
