@@ -536,7 +536,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		double paddingX=1;
 		double paddingY=1;
 		
-		
+		double theRealScale=1;
 		if(!firstPass && realBounds!=null){
 			
 			double xmin = realBounds.getMinX();
@@ -545,9 +545,9 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			double ymax = realBounds.getMaxY();
 			double centerx = (xmax+xmin)/2;
 			double centery = (ymax+ymin)/2;
-			double ssx = (height-2*paddingY)/(ymax-ymin);
-			double ssy = (width-2*paddingX)/(xmax-xmin);
-			double theRealScale = Math.min(ssx,ssy);
+			double ssy = (height-2*paddingY)/(ymax-ymin);
+			double ssx = (width-2*paddingX)/(xmax-xmin);
+			theRealScale = Math.min(ssx,ssy);
 			double bx = (width*0.5)-theRealScale*(centerx);
 			double by = (height*0.5)-theRealScale*(centery);
 			//TODO it may be that the order of these should be swapped
@@ -580,7 +580,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		BasicStroke dashed = new BasicStroke(bondWidth / 2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND, bondWidth,
 				dash, 0.0f);
 		BasicStroke solidREC = new BasicStroke(bondWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER);
-		float fsize = (float) (DEF_FONT_PERCENT * resize * BONDAVG);
+		float fsize = (float) (DEF_FONT_PERCENT * resize * BONDAVG * theRealScale);
 		Font setfont = defaultFont.deriveFont(fsize);
 		Font brafont = defaultFont.deriveFont(fsize * braketFrac);
 		g2.setFont(setfont);
