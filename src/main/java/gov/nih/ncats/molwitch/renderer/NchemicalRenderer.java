@@ -507,7 +507,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			cheight = defHeight;
 		}
 		// System.out.println("Size:" + cwidth + "," + cheight);
-		System.out.printf("original wMarge: %f; hMarge: %f\n", wMarge, hMarge);
+		//System.out.printf("original wMarge: %f; hMarge: %f\n", wMarge, hMarge);
 		//wMarge=wMarge/2;
 		//hMarge=hMarge/2;
 
@@ -517,7 +517,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		int newMarge = Math.max(
 				g2.getFontMetrics(defaultFont.deriveFont((float) (DEF_FONT_PERCENT * resize * BONDAVG))).getHeight(),
 				0);
-		System.out.printf("original newMarge: %d\n", newMarge);
+		//System.out.printf("original newMarge: %d\n", newMarge);
 		newMarge=newMarge/3;
 
 		adjW = (width - wMarge - newMarge) / cwidth;
@@ -525,7 +525,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		resize = Math.abs(Math.min(adjW, adjH));
 
 		AffineTransformParent centerTransform = ggen.makeAffineTransform();
-		System.out.println("after ggen.makeAffineTransform(); resize: " + resize);
+		//System.out.println("after ggen.makeAffineTransform(); resize: " + resize);
 
 		//this creates the basic approx bounds
 		centerTransform.translate(ncenterX, ncenterY);
@@ -551,7 +551,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			double bx = (width*0.5)-theRealScale*(centerx);
 			double by = (height*0.5)-theRealScale*(centery);
 			//TODO it may be that the order of these should be swapped
-			System.out.println("theRealScale: " + theRealScale);
+			//System.out.println("theRealScale: " + theRealScale);
 			//New
 			AffineTransform af = new AffineTransform();
 			//TODO it may be that the order of these should be swapped
