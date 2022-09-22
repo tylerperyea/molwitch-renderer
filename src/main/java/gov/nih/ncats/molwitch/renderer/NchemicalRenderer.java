@@ -178,7 +178,8 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 	 */
 	@Override
 	public void renderChem(Graphics2D g9, Chemical c, int x, int y, int width, int height) {
-		
+		System.out.printf("in NchemicalRenderer.renderChem x: %d, y: %d, width: %d; height: %d\n",
+				x, y, width, height);
 		boolean firstPass=true;
 		Rectangle2D.Double realBounds=null;
 		
@@ -581,6 +582,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				dash, 0.0f);
 		BasicStroke solidREC = new BasicStroke(bondWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER);
 		float fsize = (float) (DEF_FONT_PERCENT * resize * BONDAVG * theRealScale);
+			System.out.printf("calculated fsize: %.3f", fsize);
 		Font setfont = defaultFont.deriveFont(fsize);
 		Font brafont = defaultFont.deriveFont(fsize * braketFrac);
 		g2.setFont(setfont);
@@ -771,6 +773,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 							sm = sm + attach2;
 						}
 						forceDraw = true;
+						System.out.printf("setting font to %.4f\n", (fsize * 0.7f));
 						g2.setFont(defaultFont.deriveFont(fsize * 0.7f));
 						fm = g2.getFontMetrics();
 					} else {
@@ -794,6 +797,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 						} else {
 							attachmentCOL.add(col);
 						}
+						System.out.printf("going to use der. font %.4f\n", (fsize * 1.0f));
 						g2.setFont(defaultFont.deriveFont(Font.BOLD, fsize * 1.0f));
 						fm = g2.getFontMetrics();
 					}
@@ -1037,6 +1041,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 						Font fnt2 = ofont.deriveFont(fsize * size);
 						g2.setFont(fnt2);
 						FontMetrics fm2 = g2.getFontMetrics();
+						System.out.printf("ofont: %d\n", ofont.getSize());
 						g2.setFont(ofont);
 
 						Collection<Entry<String, float[]>> smap = getAttachPos(att, w, h, p, fm2, g2, cardPos, nv, Y_DISP_FRAC);
@@ -1078,8 +1083,13 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			drawProps.dcolor = col;
 			drawProps.hcolor = hcol;
 			drawProps.radius = radius;
+			//simple test 20 September 2022
+			fsize =20.0f;
+			System.out.printf("ca: %s; g2.setFont(defaultFont.deriveFont(fsize)) %.3f\n", ca.getSymbol(),
+					fsize);
 			g2.setFont(defaultFont.deriveFont(fsize));
 			fm = g2.getFontMetrics();
+			//System.out.printf("font size %.3f\n", fm.getFont().getSize());
 		}
 
 
@@ -1281,6 +1291,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		}
 
 		if(supsOpt.isPresent() || subs.isPresent()){
+			System.out.printf("g2.setFont(defaultFont.deriveFont(fsize * 0.7f)); %.5f", (fsize * 0.7f));
 			g2.setFont(defaultFont.deriveFont(fsize * 0.7f));
 			fm = g2.getFontMetrics();
 
