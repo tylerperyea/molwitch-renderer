@@ -265,45 +265,46 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		
 				
 		boolean PROP_DASH_SPACING = displayParams.getDrawOption(DrawOptions.DRAW_CONSTANT_DASH_WIDTH);
-				
+			System.out.printf("PROP_DASH_SPACING: %b\n", PROP_DASH_SPACING);
 		boolean DrawDashWedge = displayParams.getDrawOption(DrawOptions.DRAW_STEREO_DASH_AS_WEDGE);
-		
+			System.out.printf("DrawDashWedge: %b\n", DrawDashWedge);
 		boolean drawLastDashLineOnNonSymbols = displayParams.getDrawOption(DrawOptions.DRAW_STEREO_LAST_DASH_ON_NON_SYMBOLS);
-		
+			System.out.printf("drawLastDashLineOnNonSymbols: %b\n", drawLastDashLineOnNonSymbols);
 				
 		boolean centerNonRingDoubleBonds = displayParams.getDrawOption(DrawOptions.DRAW_CENTER_NONRING_DOUBLE_BONDS);
-		
+			System.out.printf("centerNonRingDoubleBonds: %b\n", centerNonRingDoubleBonds);
 		boolean drawTerminalHydrogens = displayParams.getDrawOption(DrawOptions.DRAW_IMPLICIT_HYDROGEN);
-		
+			System.out.printf("drawTerminalHydrogens: %b\n", drawTerminalHydrogens);
 		boolean drawTerminalCarbons = displayParams.getDrawOption(DrawOptions.DRAW_TERMINAL_CARBON);
-	
-
+			System.out.printf("drawTerminalCarbons: %b\n", drawTerminalCarbons);
 		boolean drawColorScheme = !displayParams.getDrawOption(DrawOptions.DRAW_GREYSCALE);
-				
+			System.out.printf("drawColorScheme: %b\n", drawColorScheme);
 		boolean drawStereoLabels = displayParams.getDrawOption(DrawOptions.DRAW_STEREO_LABELS);
-			
+				System.out.printf("drawStereoLabels: %b.  \n", drawStereoLabels);
 		boolean stereoFromMap = displayParams.getDrawOption(DrawOptions.DRAW_STEREO_GIVEN_BY_MAP);
-				
+			System.out.printf("displayParams: %b\n", displayParams);
 		boolean highlightMapAtoms = displayParams.getDrawOption(DrawOptions.DRAW_HIGHLIGHT_MAPPED);
-				
+			System.out.printf("highlightMapAtoms: %b\n", highlightMapAtoms);
 		boolean highlightHalo = displayParams.getDrawOption(DrawOptions.DRAW_HIGHLIGHT_WITH_HALO);
-				
+			System.out.printf("highlightHalo: %b\n", highlightHalo);
 		boolean highlightMonochromatic = displayParams.getDrawOption(DrawOptions.DRAW_HIGHLIGHT_MONOCHROMATIC);
-
+			System.out.printf("highlightMonochromatic: %b\n", highlightMonochromatic);
 		boolean highlightShowAtom = displayParams.getDrawOption(DrawOptions.DRAW_HIGHLIGHT_SHOW_ATOM);
-		
+			System.out.printf("highlightShowAtom: %b\n", highlightShowAtom);
 		boolean stereoReplace = displayParams.getDrawOption(DrawOptions.DRAW_STEREO_LABELS_AS_ATOMS);
-		
+			System.out.printf("stereoReplace: %b\n", stereoReplace);
 		boolean forceStereomono = displayParams.getDrawOption(DrawOptions.DRAW_STEREO_FORCE_MONOCHROMATIC);
+			System.out.printf("forceStereomono: %b\n", forceStereomono);
 				
 		boolean drawSuperatomLabels = displayParams.getDrawOption(DrawOptions.DRAW_SUPERATOMS_AS_LABELS);
+			System.out.printf("drawSuperatomLabels: %b\n", drawSuperatomLabels);
 
 		boolean drawAlleneCarbon = true;
 		boolean stereoColoring = true;
 
 		// boolean drawCarbon= true;
 		boolean showMappedNumbers = displayParams.getDrawOption(DrawOptions.DRAW_SHOW_MAPPED);
-			
+			System.out.printf("showMappedNumbers: %b\n", showMappedNumbers);
 
 		boolean drawRadius = false;
 		if (!drawSymbols) {
@@ -582,7 +583,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				dash, 0.0f);
 		BasicStroke solidREC = new BasicStroke(bondWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER);
 		float fsize = (float) (DEF_FONT_PERCENT * resize * BONDAVG * theRealScale);
-			System.out.printf("calculated fsize: %.3f", fsize);
+			System.out.printf("calculated fsize: %.3f; bracket font: %.3f\n", fsize, (fsize * braketFrac));
 		Font setfont = defaultFont.deriveFont(fsize);
 		Font brafont = defaultFont.deriveFont(fsize * braketFrac);
 		g2.setFont(setfont);
@@ -1084,7 +1085,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 			drawProps.hcolor = hcol;
 			drawProps.radius = radius;
 			//simple test 20 September 2022
-			fsize =20.0f;
+			//fsize =20.0f;
 			System.out.printf("ca: %s; g2.setFont(defaultFont.deriveFont(fsize)) %.3f\n", ca.getSymbol(),
 					fsize);
 			g2.setFont(defaultFont.deriveFont(fsize));
@@ -1223,7 +1224,32 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		
 		realBounds = g2.getBounds().orElse(null);
 			if(realBounds==null)break;
-			
+
+			System.out.printf("realBounds.getX(): %.3f, realBounds.getY(): %.3f, realBounds.getWidth(): %.3f, realBounds.getHeight(): %.3f\n",
+				realBounds.getX(), realBounds.getY(), realBounds.getWidth(), realBounds.getHeight());
+
+			double minAtomX =Double.POSITIVE_INFINITY;
+			double maxAtomX =Double.NEGATIVE_INFINITY;
+			double minAtomY =Double.POSITIVE_INFINITY;
+			double maxAtomY =Double.NEGATIVE_INFINITY;
+
+			for( Atom  at : c.getAtoms()){
+				if( at.getAtomCoordinates().getX() > maxAtomX) {
+					maxAtomX=at.getAtomCoordinates().getX();
+				}
+				if( at.getAtomCoordinates().getX() < minAtomX) {
+					minAtomX=at.getAtomCoordinates().getX();
+				}
+				if( at.getAtomCoordinates().getY() > maxAtomY) {
+					maxAtomY=at.getAtomCoordinates().getY();
+				}
+				if( at.getAtomCoordinates().getY() < minAtomY) {
+					minAtomY=at.getAtomCoordinates().getY();
+				}
+			}
+			System.out.printf("computed minAtomX: %.3f; maxAtomX: %.3f; minAtomY: %.3f; maxAtomY: %.3f\n",
+					minAtomX, maxAtomX, minAtomY, maxAtomY);
+
 		}
 	}
 
