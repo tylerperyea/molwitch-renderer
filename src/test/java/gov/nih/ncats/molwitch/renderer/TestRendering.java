@@ -110,6 +110,103 @@ public class TestRendering {
     }
 
     @Test
+    public void renderStearicAcid() throws Exception{
+        String folder ="images\\";
+        List<String> molNames = Arrays.asList("4ELV7Z65AP"); //, stearic acid
+        molNames.forEach(mol->{
+            System.out.println("Going to render " + mol);
+            RendererOptions rendererOptions = RendererOptions.createUSPLike();
+            rendererOptions=rendererOptions.captionTop(c -> c.getProperty("TOP_TEXT"));
+            rendererOptions=rendererOptions.captionBottom(c -> c.getProperty("BOTTOM_TEXT"));
+            ChemicalRenderer renderer = new ChemicalRenderer(rendererOptions);
+
+            renderer.setShadowVisible(false);
+            Chemical c = null;
+            try {
+                c = Chemical.parseMol(new File(getClass().getResource("/" + mol + ".mol").getFile()));
+                c.setProperty("BOTTOM_TEXT", mol);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            renderer.setBackgroundColor(Color.white);
+            renderer.setShadowVisible(false);
+
+            //simulate call from GSRS 2.7
+            int size=300;
+            int lower = size/2;
+            int upper = 2*size;
+            double baseBondLength=75;
+            double bondLength=baseBondLength;
+            System.out.println("lower: " + lower + "; upper: " + upper + "; bond length: " + bondLength);
+            Rectangle2D.Double rect = renderer.getApproximateBoundsFor(c, upper, lower, upper, lower, bondLength);
+            int width=(int)Math.round(rect.getWidth());
+            int height=(int)Math.round(rect.getHeight());
+
+            BufferedImage image=renderer.createImage(c, width, height, false);
+            System.out.println("completed image creation");
+            boolean result1 = false;
+            try {
+                result1 = ImageIO.write(image, "PNG", new File(folder +MolWitch.getModuleName()
+                        + mol +"_simple.png"));
+                System.out.println("wrote");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Assert.assertTrue(result1);
+
+        });
+    }
+
+    @Test
+    public void renderStearicAcidSvg() throws Exception{
+        String folder ="images\\";
+        List<String> molNames = Arrays.asList("4ELV7Z65AP"); //, stearic acid
+        molNames.forEach(mol->{
+            System.out.println("Going to render " + mol);
+            RendererOptions rendererOptions = RendererOptions.createUSPLike();
+            rendererOptions=rendererOptions.captionTop(c -> c.getProperty("TOP_TEXT"));
+            rendererOptions=rendererOptions.captionBottom(c -> c.getProperty("BOTTOM_TEXT"));
+            ChemicalRenderer renderer = new ChemicalRenderer(rendererOptions);
+
+            renderer.setShadowVisible(false);
+            Chemical c = null;
+            try {
+                c = Chemical.parseMol(new File(getClass().getResource("/" + mol + ".mol").getFile()));
+                c.setProperty("BOTTOM_TEXT", mol);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            renderer.setBackgroundColor(Color.white);
+            renderer.setShadowVisible(false);
+
+            //simulate call from GSRS 2.7
+            int size=300;
+            int lower = size/2;
+            int upper = 2*size;
+            double baseBondLength=75;
+            double bondLength=baseBondLength;
+            System.out.println("lower: " + lower + "; upper: " + upper + "; bond length: " + bondLength);
+            Rectangle2D.Double rect = renderer.getApproximateBoundsFor(c, upper, lower, upper, lower, bondLength);
+            int width=(int)Math.round(rect.getWidth());
+            int height=(int)Math.round(rect.getHeight());
+
+
+            BufferedImage image=renderer.createImage(c, width, height, false);
+            System.out.println("completed image creation");
+            boolean result1 = false;
+            try {
+                result1 = ImageIO.write(image, "PNG", new File(folder +MolWitch.getModuleName()
+                        + mol +"_simple.png"));
+                System.out.println("wrote");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Assert.assertTrue(result1);
+
+        });
+    }
+
+    @Test
     public void renderFewMols() throws Exception{
         String folder ="images\\";
         List<String> molNames = Arrays.asList("ammonia_not_centered", "water");
