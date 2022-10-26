@@ -568,7 +568,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				dash, 0.0f);
 		BasicStroke solidREC = new BasicStroke(bondWidth, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER);
 		float fsize = (float) (DEF_FONT_PERCENT * resize * BONDAVG * theRealScale);
-			System.out.printf("calculated fsize: %.3f; bracket font: %.3f\n", fsize, (fsize * braketFrac));
+		//System.out.printf("calculated fsize: %.3f; bracket font: %.3f\n", fsize, (fsize * braketFrac));
 		Font setfont = defaultFont.deriveFont(fsize);
 		Font brafont = defaultFont.deriveFont(fsize * braketFrac);
 		g2.setFont(setfont);
