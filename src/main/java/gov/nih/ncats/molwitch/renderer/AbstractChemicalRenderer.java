@@ -28,6 +28,7 @@ import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.color.ColorSpace;
 import java.awt.geom.RoundRectangle2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.ColorConvertOp;
@@ -145,8 +146,7 @@ import gov.nih.ncats.molwitch.Chemical;
 			}
 		}
 	}
-
-	/**
+        /**
 	*
 	*  Draw the supplied string to the graphics object at either the top or bottom 
         *  of the rectangle derived from x,y,x+width,y+height. The size of the font will
@@ -156,6 +156,19 @@ import gov.nih.ncats.molwitch.Chemical;
 	*/
 	public Rectangle2D.Double drawText(Graphics2D g2, int x, int y, int width, int height,
 			String text, int position) {
+		return drawText(g2, x, y, width, height, text, position, false);
+	}
+	 
+	/**
+	*
+	*  Draw the supplied string to the graphics object at either the top or bottom 
+        *  of the rectangle derived from x,y,x+width,y+height. The size of the font will
+	*  be the width supplied/15. 
+	*
+	*  Returns the Rectangle bounds of where the string was drawn. 
+	*/
+	public Rectangle2D.Double drawText(Graphics2D g2, int x, int y, int width, int height,
+			String text, int position, boolean boundsOnly) {
 		g2.setColor(Color.black);
 		g2.setFont(g2.getFont().deriveFont(Font.PLAIN, width / 15));
 		FontMetrics fm = g2.getFontMetrics();
@@ -187,10 +200,13 @@ import gov.nih.ncats.molwitch.Chemical;
 			default:
 				break;
 		}
-		g2.drawString(text, startingX, startingY);
-		
+		if(!boundsOnly){
+			g2.drawString(text, startingX, startingY);
+		}
                 return new Rectangle2D.Double(startingX, startingY-sheight, swidth, sheight);
 	}
+	 
+	 
 	public void renderChemicalShadow(Graphics2D g2, Chemical c, int x, int y, int width, int height){
         BufferedImage tmpCanvas = new BufferedImage 
 	    (width, height, BufferedImage.TYPE_INT_ARGB);
