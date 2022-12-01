@@ -201,7 +201,7 @@ import gov.nih.ncats.molwitch.Chemical;
 				break;
 		}
 		if(!boundsOnly){
-			g2.drawString(text, startingX, startingY);
+			g2.drawString(text, (int)startingX, (int)startingY);
 		}
                 return new Rectangle2D.Double(startingX, startingY-sheight, swidth, sheight);
 	}
