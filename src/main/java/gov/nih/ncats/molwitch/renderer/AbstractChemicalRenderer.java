@@ -146,7 +146,15 @@ import gov.nih.ncats.molwitch.Chemical;
 		}
 	}
 
-	public void drawText(Graphics2D g2, int x, int y, int width, int height,
+	/**
+	*
+	*  Draw the supplied string to the graphics object at either the top or bottom 
+        *  of the rectangle derived from x,y,x+width,y+height. The size of the font will
+	*  be the width supplied/15. 
+	*
+	*  Returns the Rectangle bounds of where the string was drawn. 
+	*/
+	public Rectangle2D.Double drawText(Graphics2D g2, int x, int y, int width, int height,
 			String text, int position) {
 		g2.setColor(Color.black);
 		g2.setFont(g2.getFont().deriveFont(Font.PLAIN, width / 15));
@@ -157,20 +165,31 @@ import gov.nih.ncats.molwitch.Chemical;
 			text = text.substring(0,(int)((text.length()*width)/swidth)-3) + "...";
 			swidth = fm.stringWidth(text);
 		}
-		// draw below:
+		double startingX = x + (width - swidth) / 2;
+		double startingY=0;
 		switch (position) {
-		case POSITION_BOTTOM:
-			g2.drawString(text, x + (width - swidth) / 2,
-					y + height - sheight / 2);
-			break;
-		case POSITION_TOP:
-			g2.drawString(text, x + (width - swidth) / 2, y
-					+ (sheight * 3) / 2);
-			break;
-		default:
-			break;
+			case POSITION_BOTTOM:				
+				// bottom pixel - half the height of the font
+				// this is because the y-position determines
+				// the baseline of the font. This gives a half
+				// font-height padding to the rendering on
+				// bottom
+				startingY = y + height - sheight / 2; 
+				break;
+			case POSITION_TOP:
+				// top pixel + 3/2 the height of the font
+				// this is because the y-position determines
+				// the baseline of the font. This gives a half
+				// font-height padding to the rendering on
+				// top
+				startingY = y + (sheight * 3) / 2; 
+				break;
+			default:
+				break;
 		}
-
+		g2.drawString(text, startingX, startingY);
+		
+                return new Rectangle2D.Double(startingX, startingY-sheight, swidth, sheight);
 	}
 	public void renderChemicalShadow(Graphics2D g2, Chemical c, int x, int y, int width, int height){
         BufferedImage tmpCanvas = new BufferedImage 
