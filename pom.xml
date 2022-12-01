@@ -2,7 +2,7 @@
 <!--
   ~ NCATS-MOLWITCH-RENDERER
   ~
-  ~ Copyright 2019 NIH/NCATS
+  ~ Copyright 2022 NIH/NCATS
   ~
   ~    Licensed under the Apache License, Version 2.0 (the "License");
   ~    you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 
     <groupId>gov.nih.ncats</groupId>
     <artifactId>molwitch-renderer</artifactId>
-    <version>1.0.10-SNAPSHOT</version>
+    <version>1.0.12-SNAPSHOT</version>
 
     <name>Molwitch Renderer</name>
 
@@ -59,6 +59,15 @@
             <email>tyler.peryea@nih.gov</email>
             <roles>
                 <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>America/New_York</timezone>
+        </developer>
+        <developer>
+            <id>chemMitch</id>
+            <name>Mitch miller</name>
+            <email>mitch.miller@thinkscience.us</email>
+            <roles>
                 <role>developer</role>
             </roles>
             <timezone>America/New_York</timezone>
@@ -106,24 +115,24 @@
             <version>2.11.0</version>
             <optional>true</optional>
         </dependency>
-       <dependency>
+       <!--dependency>
         <groupId>gov.nih.ncats</groupId>
         <artifactId>molwitch-cdk</artifactId>
         <version>1.0.9</version>
         <scope>test</scope>
-    </dependency>
-        <dependency>
+    </dependency-->
+        <!--dependency>
             <artifactId>cdk-bundle</artifactId>
             <groupId>org.openscience.cdk</groupId>
             <version>2.7.1</version>
             <scope>test</scope>
+        </dependency-->
+        <dependency>
+            <groupId>gov.nih.ncats</groupId>
+            <artifactId>molwitch-jchem3</artifactId>
+            <version>1.0.11</version>
+            <scope>test</scope>
         </dependency>
-<!--       <dependency>-->
-<!--        <groupId>gov.nih.ncats</groupId>-->
-<!--            <artifactId>molwitch-jchem3</artifactId>-->
-<!--            <version>1.0.11-SNAPSHOT</version>-->
-<!--        <scope>test</scope>-->
-<!--    </dependency>-->
         <dependency>
             <groupId>chemaxon</groupId>
             <artifactId>jchem</artifactId>

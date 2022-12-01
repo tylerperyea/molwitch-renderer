@@ -103,10 +103,30 @@ class BoundingBox {
 				maxY=y;
 			}
 		}
+		double xSpread= maxX-minX;
+		double ySpread= maxY-minY;
+		double avgSpread = (xSpread+ySpread)/2;
+		//System.out.printf("xSpread: %f, ySpread: %f, avg: %f\n", xSpread, ySpread, avgSpread);
+		double xRatio = ySpread==0 ? 1 : xSpread/ySpread;
+		double yRatio = xSpread==0 ? 1 : ySpread/xSpread;
+		//System.out.printf("xRatio: %f, yRatio: %f\n", xRatio, yRatio);
+		double scale = 0.7;
+		xRatio = xRatio * scale;
+		yRatio= yRatio * scale;
+
+		double factor=1.1;
+		double xPadding = Math.max(xRatio, 0.0); //(xSpread/avgSpread)*factor
+		double yPadding = Math.max(yRatio, 0.0);//(ySpread/avgSpread)*factor
+		//System.out.printf("xPadding: %f, yPadding: %f\n", xPadding, yPadding);
+
 		double doublePadding = padding*2;
-		return new Rectangle2D.Double(minX-padding, minY-padding, (maxX-minX)+doublePadding, (maxY-minY)+doublePadding);
+		double lowX =minX-xPadding;
+		double lowY=minY-yPadding;
+		double highX=(maxX-minX)+(2*xPadding);
+		double highY=(maxY-minY)+(2*yPadding);
+		return new Rectangle2D.Double(lowX, lowY, highX, highY);
 	}
-	
+
 	public static Rectangle2D computePaddedBoundingBoxForCoordinates(Iterable<AtomCoordinates> c, double padding) {
 		double minX = Double.POSITIVE_INFINITY;
 		double minY = Double.POSITIVE_INFINITY;
@@ -187,7 +207,6 @@ class BoundingBox {
 	    /**
 	     * Computes the convex hull of the specified array of points.
 	     *
-	     * @param  points the array of points
 	     * @throws IllegalArgumentException if {@code points} is {@code null}
 	     * @throws IllegalArgumentException if any entry in {@code points[]} is {@code null}
 	     * @throws IllegalArgumentException if {@code points.length} is {@code 0}

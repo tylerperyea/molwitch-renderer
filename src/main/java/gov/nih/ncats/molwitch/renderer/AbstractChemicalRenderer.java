@@ -28,6 +28,7 @@ import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.color.ColorSpace;
 import java.awt.geom.RoundRectangle2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.BufferedImageOp;
 import java.awt.image.ColorConvertOp;
@@ -113,6 +114,8 @@ import gov.nih.ncats.molwitch.Chemical;
 	renderChem (g2, c, 0, 0, width, height, round);
 	}
 	public void renderChem (Graphics2D g2, Chemical c, int x, int y,int width, int height, boolean round){
+		System.out.printf("starting renderChem total atoms: %d; x: %d; y: %d, width: %d; height: %d; round: %b\n",
+				c.getAtomCount(), x, y, width, height, round);
 		renderBackground(g2,x,y,width,height,round);
 		if(getShadowVisible())
 			renderChemicalShadow(g2,c,x,y,width,height);
@@ -143,9 +146,29 @@ import gov.nih.ncats.molwitch.Chemical;
 			}
 		}
 	}
-
-	public void drawText(Graphics2D g2, int x, int y, int width, int height,
+        /**
+	*
+	*  Draw the supplied string to the graphics object at either the top or bottom 
+        *  of the rectangle derived from x,y,x+width,y+height. The size of the font will
+	*  be the width supplied/15. 
+	*
+	*  Returns the Rectangle bounds of where the string was drawn. 
+	*/
+	public Rectangle2D.Double drawText(Graphics2D g2, int x, int y, int width, int height,
 			String text, int position) {
+		return drawText(g2, x, y, width, height, text, position, false);
+	}
+	 
+	/**
+	*
+	*  Draw the supplied string to the graphics object at either the top or bottom 
+        *  of the rectangle derived from x,y,x+width,y+height. The size of the font will
+	*  be the width supplied/15. 
+	*
+	*  Returns the Rectangle bounds of where the string was drawn. 
+	*/
+	public Rectangle2D.Double drawText(Graphics2D g2, int x, int y, int width, int height,
+			String text, int position, boolean boundsOnly) {
 		g2.setColor(Color.black);
 		g2.setFont(g2.getFont().deriveFont(Font.PLAIN, width / 15));
 		FontMetrics fm = g2.getFontMetrics();
@@ -155,21 +178,35 @@ import gov.nih.ncats.molwitch.Chemical;
 			text = text.substring(0,(int)((text.length()*width)/swidth)-3) + "...";
 			swidth = fm.stringWidth(text);
 		}
-		// draw below:
+		double startingX = x + (width - swidth) / 2;
+		double startingY=0;
 		switch (position) {
-		case POSITION_BOTTOM:
-			g2.drawString(text, x + (width - swidth) / 2,
-					y + height - sheight / 2);
-			break;
-		case POSITION_TOP:
-			g2.drawString(text, x + (width - swidth) / 2, y
-					+ (sheight * 3) / 2);
-			break;
-		default:
-			break;
+			case POSITION_BOTTOM:				
+				// bottom pixel - half the height of the font
+				// this is because the y-position determines
+				// the baseline of the font. This gives a half
+				// font-height padding to the rendering on
+				// bottom
+				startingY = y + height - sheight / 2; 
+				break;
+			case POSITION_TOP:
+				// top pixel + 3/2 the height of the font
+				// this is because the y-position determines
+				// the baseline of the font. This gives a half
+				// font-height padding to the rendering on
+				// top
+				startingY = y + (sheight * 3) / 2; 
+				break;
+			default:
+				break;
 		}
-
+		if(!boundsOnly){
+			g2.drawString(text, (int)startingX, (int)startingY);
+		}
+                return new Rectangle2D.Double(startingX, startingY-sheight, swidth, sheight);
 	}
+	 
+	 
 	public void renderChemicalShadow(Graphics2D g2, Chemical c, int x, int y, int width, int height){
         BufferedImage tmpCanvas = new BufferedImage 
 	    (width, height, BufferedImage.TYPE_INT_ARGB);
