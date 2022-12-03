@@ -178,8 +178,8 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 	 */
 	@Override
 	public void renderChem(Graphics2D g9, Chemical c, int x, int y, int width, int height) {
-		System.out.printf("in NchemicalRenderer.renderChem x: %d, y: %d, width: %d; height: %d\n",
-				x, y, width, height);
+/*		System.out.printf("in NchemicalRenderer.renderChem x: %d, y: %d, width: %d; height: %d\n",
+				x, y, width, height);*/
 		boolean firstPass=true;
 		Rectangle2D.Double realBounds=null;
 		
@@ -470,8 +470,8 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		}
 		double newMaxP=0.0; //was maxP
 		Rectangle2D boundingBox = BoundingBox.computeBoundingBoxFor(c, newMaxP);
-		System.out.printf("boundingBox: x = %.3f; y = %.3f; width = %.3f; height = %.3f\n",
-				boundingBox.getX(), boundingBox.getY(), boundingBox.getWidth(), boundingBox.getHeight());
+		/*System.out.printf("boundingBox: x = %.3f; y = %.3f; width = %.3f; height = %.3f\n",
+				boundingBox.getX(), boundingBox.getY(), boundingBox.getWidth(), boundingBox.getHeight());*/
 
 		minX = boundingBox.getMinX();
 		maxX = boundingBox.getMaxX();
@@ -759,7 +759,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 							sm = sm + attach2;
 						}
 						forceDraw = true;
-						System.out.printf("setting font to %.4f\n", (fsize * 0.7f));
+						//System.out.printf("setting font to %.4f\n", (fsize * 0.7f));
 						g2.setFont(defaultFont.deriveFont(fsize * 0.7f));
 						fm = g2.getFontMetrics();
 					} else {
@@ -783,7 +783,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 						} else {
 							attachmentCOL.add(col);
 						}
-						System.out.printf("going to use der. font %.4f\n", (fsize * 1.0f));
+						//System.out.printf("going to use der. font %.4f\n", (fsize * 1.0f));
 						g2.setFont(defaultFont.deriveFont(Font.BOLD, fsize * 1.0f));
 						fm = g2.getFontMetrics();
 					}
@@ -1208,8 +1208,10 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		realBounds = g2.getBounds().orElse(null);
 			if(realBounds==null)break;
 
+/*
 			System.out.printf("realBounds.getX(): %.3f, realBounds.getY(): %.3f, realBounds.getWidth(): %.3f, realBounds.getHeight(): %.3f\n",
 				realBounds.getX(), realBounds.getY(), realBounds.getWidth(), realBounds.getHeight());
+*/
 
 			double minAtomX =Double.POSITIVE_INFINITY;
 			double maxAtomX =Double.NEGATIVE_INFINITY;
@@ -1230,15 +1232,15 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 					minAtomY=at.getAtomCoordinates().getY();
 				}
 			}
-			System.out.printf("computed minAtomX: %.3f; maxAtomX: %.3f; minAtomY: %.3f; maxAtomY: %.3f\n",
-					minAtomX, maxAtomX, minAtomY, maxAtomY);
+			/*System.out.printf("computed minAtomX: %.3f; maxAtomX: %.3f; minAtomY: %.3f; maxAtomY: %.3f\n",
+					minAtomX, maxAtomX, minAtomY, maxAtomY);*/
 
 			double xAtomRange = maxAtomX-minAtomX;
 			double yAtomRange = maxAtomY-minAtomY;
 			double xRatio = realBounds.getWidth()/xAtomRange;
 			double yRatio = realBounds.getHeight()/yAtomRange;
-			System.out.printf("xAtomRange: %.3f; yAtomRange: %.3f; xRatio: %.23f; yRatio: %.3f\n", xAtomRange, yAtomRange,
-					xRatio, yRatio);
+			/*System.out.printf("xAtomRange: %.3f; yAtomRange: %.3f; xRatio: %.23f; yRatio: %.3f\n", xAtomRange, yAtomRange,
+					xRatio, yRatio);*/
 		}
 	}
 
@@ -1306,7 +1308,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		}
 
 		if(supsOpt.isPresent() || subs.isPresent()){
-			System.out.printf("g2.setFont(defaultFont.deriveFont(fsize * 0.7f)); %.5f", (fsize * 0.7f));
+			//System.out.printf("g2.setFont(defaultFont.deriveFont(fsize * 0.7f)); %.5f", (fsize * 0.7f));
 			g2.setFont(defaultFont.deriveFont(fsize * 0.7f));
 			fm = g2.getFontMetrics();
 
@@ -1341,8 +1343,8 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				}
 	//			System.out.println("bracket cords = " + coords);
 				rt =  BoundingBox.computePaddedBoundingBoxForCoordinates(coords, 0);
-				System.out.printf("bounding box. x = %.3f; y = %.3f; width = %.3f; height = %.3f\n",
-						rt.getX(), rt.getY(), rt.getWidth(), rt.getHeight());
+				/*System.out.printf("bounding box. x = %.3f; y = %.3f; width = %.3f; height = %.3f\n",
+						rt.getX(), rt.getY(), rt.getWidth(), rt.getHeight());*/
 				Rectangle2D.Float r = new Rectangle2D.Float((float) rt.getX(),
 						(float) rt.getY(), (float) rt.getWidth(),
 						(float) rt.getHeight());
