@@ -189,12 +189,12 @@ public class ChemicalRenderer {
 	public BufferedImage createImageAutoAdjust (Chemical c, int maxWidth, int minWidth, int maxHeight, int minHeight,
 												double requestedAverageBondLength) {
 
-		System.out.printf("In createImageAutoAdjust: maxWidth: %d; minWidth: %d; maxHeight: %d; minHeight: %d\n",
-				maxWidth, minWidth, maxHeight, minHeight);
+		/*System.out.printf("In createImageAutoAdjust: maxWidth: %d; minWidth: %d; maxHeight: %d; minHeight: %d\n",
+				maxWidth, minWidth, maxHeight, minHeight);*/
 		Rectangle2D.Double rectangle= getApproximateBoundsFor(c, maxWidth, minWidth, maxHeight, minHeight, requestedAverageBondLength);
 		int width= (int) Math.round(rectangle.getWidth());
 		int height= (int) Math.round(rectangle.getHeight());
-		System.out.printf("Calculated width: %d; height: %d\n", width, height);
+		//System.out.printf("Calculated width: %d; height: %d\n", width, height);
 		//System.out.printf("final width: %d; height: %d.\n", width, height);
 		return createImage (c, width, height, false);
 	}

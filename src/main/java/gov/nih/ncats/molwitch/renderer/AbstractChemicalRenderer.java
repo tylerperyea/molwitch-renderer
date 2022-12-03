@@ -114,8 +114,8 @@ import gov.nih.ncats.molwitch.Chemical;
 	renderChem (g2, c, 0, 0, width, height, round);
 	}
 	public void renderChem (Graphics2D g2, Chemical c, int x, int y,int width, int height, boolean round){
-		System.out.printf("starting renderChem total atoms: %d; x: %d; y: %d, width: %d; height: %d; round: %b\n",
-				c.getAtomCount(), x, y, width, height, round);
+		/*System.out.printf("starting renderChem total atoms: %d; x: %d; y: %d, width: %d; height: %d; round: %b\n",
+				c.getAtomCount(), x, y, width, height, round);*/
 		renderBackground(g2,x,y,width,height,round);
 		if(getShadowVisible())
 			renderChemicalShadow(g2,c,x,y,width,height);
