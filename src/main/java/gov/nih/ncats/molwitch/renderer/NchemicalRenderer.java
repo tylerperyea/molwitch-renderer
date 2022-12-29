@@ -1,7 +1,7 @@
 /*
  * NCATS-MOLWITCH-RENDERER
  *
- * Copyright 2019 NIH/NCATS
+ * Copyright 2023 NIH/NCATS
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -243,6 +243,10 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		
 
 		boolean drawBonds = displayParams.getDrawOption(DrawOptions.DRAW_BONDS);
+		boolean drawStereoBondLabels =displayParams.getDrawOption(DrawOptions.DRAW_BOND_STEREO_LABELS);
+		if(displayParams.getDrawOption(DrawOptions.DRAW_BOND_STEREO_LABELS))  {
+			drawBonds=true;
+		}
 				
 		boolean drawSymbols = displayParams.getDrawOption(DrawOptions.DRAW_SYMBOLS);
 				
@@ -1103,6 +1107,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				bp.drawBonds(g2, c, toAdd, solidHalo, dashed, centerTransform, atompDProps);
 			}
 			bp.highlightHalo = false;
+			bp.drawStereoBondLabels=drawStereoBondLabels;
 			bp.drawBonds(g2, c, toAdd, solid, dashed, centerTransform, atompDProps);
 
 		}
@@ -1544,6 +1549,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		boolean wedgeJoin;
 		boolean drawLastDashLineOnNonSymbols;
 
+		boolean drawStereoBondLabels;
 		Stroke solidREC;
 
 		private void drawBonds(Graphics2DTemp g2, Chemical c, List<double[]> toAdd, Stroke solid, Stroke dashed,
@@ -1788,6 +1794,22 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 					break;
 
 				default:
+				}
+				//TEMP testing ability to draw text
+				if(drawStereoBondLabels && cb.getBondType()== BondType.DOUBLE) {
+
+					String bondStereo =cb.getDoubleBondStereo().name();
+					String bsPieces[] = bondStereo.split("\\_");
+					FontMetrics metrics = g2.getFontMetrics();
+					int labelWidth = metrics.stringWidth(bsPieces[0]);
+					double x =  Math.abs( cb.getAtom1().getAtomCoordinates().getX()-cb.getAtom2().getAtomCoordinates().getX());
+					double y =  Math.abs( cb.getAtom1().getAtomCoordinates().getY()-cb.getAtom2().getAtomCoordinates().getY());
+					float fudgeFactor=200;
+					float xPos= (float) (x- labelWidth +1.5* fudgeFactor);
+					float yPos = (float) (y + metrics.getHeight()/2 )+fudgeFactor;
+					System.out.printf("Going to draw string '%s' at %.2f, %.2f\n", bsPieces[0],
+							xPos, yPos);
+					drawString(g2, bsPieces[0], xPos, yPos);
 				}
 			}
 			
