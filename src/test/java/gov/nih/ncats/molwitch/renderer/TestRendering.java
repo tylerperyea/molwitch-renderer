@@ -79,7 +79,8 @@ public class TestRendering {
         ChemicalRenderer renderer = new ChemicalRenderer();
         renderer.getOptions().setDrawOption(RendererOptions.DrawOptions.DRAW_STEREO_LABELS, true);
         renderer.getOptions().setDrawOption(RendererOptions.DrawOptions.DRAW_BOND_STEREO_LABELS, true);
-        List<String> mols = Arrays.asList("E-2-chlorobut-2-ene.mol", "Z-2-chlorobut-2-ene.mol", "methyl-2-chlorobut-2-ene.mol");
+        List<String> mols = Arrays.asList("E-2-chlorobut-2-ene.mol", "Z-2-chlorobut-2-ene.mol", "methyl-2-chlorobut-2-ene.mol",
+                "Z-2-chlorobut-2-ene_v.mol");
         mols.forEach(m->{
             File molfile = new File(getClass().getResource("/"+m).getFile());
             if(!molfile.exists()){
