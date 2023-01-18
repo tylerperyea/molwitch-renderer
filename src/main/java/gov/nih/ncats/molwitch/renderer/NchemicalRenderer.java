@@ -1802,13 +1802,18 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 					String bsPieces[] = bondStereo.split("\\_");
 					FontMetrics metrics = g2.getFontMetrics();
 					int labelWidth = metrics.stringWidth(bsPieces[0]);
-					double x =  Math.abs( cb.getAtom1().getAtomCoordinates().getX()-cb.getAtom2().getAtomCoordinates().getX());
-					double y =  Math.abs( cb.getAtom1().getAtomCoordinates().getY()-cb.getAtom2().getAtomCoordinates().getY());
-					float fudgeFactor=200;
+					double x = Math.min(cb.getAtom1().getAtomCoordinates().getX(), cb.getAtom2().getAtomCoordinates().getX()) +
+							Math.abs( cb.getAtom1().getAtomCoordinates().getX()-cb.getAtom2().getAtomCoordinates().getX())/2;
+					System.out.printf("atom1 x %.2f atom2 x %.2f middle %.2f\n", cb.getAtom1().getAtomCoordinates().getX(),
+							cb.getAtom2().getAtomCoordinates().getX(), x);
+					double y = Math.min(cb.getAtom1().getAtomCoordinates().getY(), cb.getAtom2().getAtomCoordinates().getY()) + Math.abs( cb.getAtom1().getAtomCoordinates().getY()-cb.getAtom2().getAtomCoordinates().getY())/2;
+					System.out.printf("atom1 y %.2f atom2 y %.2f middle %.2f\n", cb.getAtom1().getAtomCoordinates().getY(),
+							cb.getAtom2().getAtomCoordinates().getY(), y);
+					float fudgeFactor=240;
 					float xPos= (float) (x- labelWidth +1.5* fudgeFactor);
 					float yPos = (float) (y + metrics.getHeight()/2 )+fudgeFactor;
 					System.out.printf("Going to draw string '%s' at %.2f, %.2f\n", bsPieces[0],
-							xPos, yPos);
+							x, y);
 					drawString(g2, bsPieces[0], xPos, yPos);
 				}
 			}
