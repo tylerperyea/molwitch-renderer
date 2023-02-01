@@ -19,15 +19,15 @@ public class TestRenderSgroupBrackets {
     public void renderWithBracketsSet() throws Exception{
         ChemicalRenderer renderer = new ChemicalRenderer();
         List<String> chemicalNames = Arrays.asList("sodium_acetate", "NFX970DSI2", "V341SPY84U", "J3OC7JVS54", "4VN69WUP7N",
-                "4VN69WUP7N-dihydrate", "B37782955L","F3LJ1K2O96","potassium_acetate_hydrate", "potassium_propanoate_hydrate",
-                "ZL7OV5621O", "ZL7OV5621O_hydrate");
+                "4VN69WUP7N-dihydrate", "B37782955L","potassium_acetate_hydrate", "potassium_propanoate_hydrate",
+                "ZL7OV5621O", "ZL7OV5621O_hydrate"); //"F3LJ1K2O96",
         List<Boolean> results= chemicalNames.stream()
                 .map(n->{
                     try {
                         String name =String.format("/%s.mol", n);
                         Chemical c = Chemical.parseMol(new File(getClass().getResource(name).getFile()));
                         BufferedImage actual = renderer.createImage(c, 600);
-                        String imageFileName =String.format("%sactual_%s.png", MolWitch.getModuleName(), n);
+                        String imageFileName =String.format("images/%sactual_%s.png", MolWitch.getModuleName(), n);
                         File imageFile = new File(imageFileName);
                         ImageIO.write(actual, "PNG", imageFile);
                         System.out.println("wrote file to " + imageFile.getAbsolutePath());

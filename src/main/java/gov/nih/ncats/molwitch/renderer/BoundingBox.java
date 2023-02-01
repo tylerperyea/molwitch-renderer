@@ -79,7 +79,35 @@ class BoundingBox {
         }
         return computePaddedBoundingBoxFromSuppliers(list, padding);
     }
-    private static Rectangle2D computePaddedBoundingBoxFromSuppliers(Iterable<Supplier<AtomCoordinates>> c, double padding) {
+
+	private static Rectangle2D computePaddedBoundingBoxFromSuppliers(Iterable<Supplier<AtomCoordinates>> c, double padding) {
+		double minX = Double.POSITIVE_INFINITY;
+		double minY = Double.POSITIVE_INFINITY;
+		double maxX = Double.NEGATIVE_INFINITY;
+		double maxY = Double.NEGATIVE_INFINITY;
+
+		for(Supplier<AtomCoordinates> a :c) {
+			AtomCoordinates coords = a.get();
+
+			double x = coords.getX();
+			double y = coords.getY();
+			if(x < minX) {
+				minX = x;
+			}
+			if(x > maxX) {
+				maxX =x;
+			}
+			if( y < minY) {
+				minY=y;
+			}
+			if( y > maxY) {
+				maxY=y;
+			}
+		}
+		double doublePadding = padding*2;
+		return new Rectangle2D.Double(minX-padding, minY-padding, (maxX-minX)+doublePadding, (maxY-minY)+doublePadding);
+	}
+    /*private static Rectangle2D computePaddedBoundingBoxFromSuppliers(Iterable<Supplier<AtomCoordinates>> c, double padding) {
 		double minX = Double.POSITIVE_INFINITY;
 		double minY = Double.POSITIVE_INFINITY;
 		double maxX = Double.NEGATIVE_INFINITY;
@@ -125,7 +153,7 @@ class BoundingBox {
 		double highX=(maxX-minX)+(2*xPadding);
 		double highY=(maxY-minY)+(2*yPadding);
 		return new Rectangle2D.Double(lowX, lowY, highX, highY);
-	}
+	}*/
 
 	public static Rectangle2D computePaddedBoundingBoxForCoordinates(Iterable<AtomCoordinates> c, double padding) {
 		double minX = Double.POSITIVE_INFINITY;

@@ -101,6 +101,35 @@ public class TestRendering {
 
     }
 
+    /*
+    molecule with 3 bracketed SGroups
+     */
+    @Test
+    public void renderMolWithSequentialBrackets() throws Exception{
+        ChemicalRenderer renderer = new ChemicalRenderer();
+        renderer.getOptions().setDrawOption(RendererOptions.DrawOptions.DRAW_STEREO_LABELS, true);
+        renderer.getOptions().setDrawOption(RendererOptions.DrawOptions.DRAW_BOND_STEREO_LABELS, true);
+        List<String> mols = Arrays.asList("bracket_rendering_example_30-jan-2023.mol");
+        mols.forEach(m->{
+            File molfile = new File(getClass().getResource("/"+m).getFile());
+            if(!molfile.exists()){
+                System.err.println("Error! molfile requested does not exist");
+                Assert.fail("molfile must be readable");
+            }
+            boolean result1 = false;
+            try {
+                Chemical c = Chemical.parseMol(molfile);
+                renderer.setBackgroundColor(Color.white);
+                BufferedImage image=renderer.createImage(c, 600);
+                result1 = ImageIO.write(image, "PNG", new File( IMAGE_DIR+ MolWitch.getModuleName() +"_" + m+".png"));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            Assert.assertTrue(result1);
+        });
+
+    }
+
     @Test
     public void renderMols() throws Exception{
         String folder ="images\\";

@@ -24,7 +24,7 @@
 
     <groupId>gov.nih.ncats</groupId>
     <artifactId>molwitch-renderer</artifactId>
-    <version>1.0.12-SNAPSHOT</version>
+    <version>1.0.13-SNAPSHOT</version>
 
     <name>Molwitch Renderer</name>
 
@@ -118,7 +118,7 @@
         <artifactId>molwitch-cdk</artifactId>
         <version>1.0.12-SNAPSHOT</version>
         <scope>test</scope>
-    </dependency>
+        </dependency>
         <dependency>
             <artifactId>cdk-bundle</artifactId>
             <groupId>org.openscience.cdk</groupId>
@@ -132,12 +132,12 @@
             <scope>test</scope>
         </dependency-->
 
-        <dependency>
+        <!--dependency>
             <groupId>chemaxon</groupId>
             <artifactId>jchem</artifactId>
             <version>1.0.0fake</version>
             <scope>provided</scope>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
