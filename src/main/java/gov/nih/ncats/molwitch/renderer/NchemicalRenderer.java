@@ -1,7 +1,7 @@
 /*
  * NCATS-MOLWITCH-RENDERER
  *
- * Copyright 2019 NIH/NCATS
+ * Copyright 2023 NIH/NCATS
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -243,7 +243,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		
 
 		boolean drawBonds = displayParams.getDrawOption(DrawOptions.DRAW_BONDS);
-				
+
 		boolean drawSymbols = displayParams.getDrawOption(DrawOptions.DRAW_SYMBOLS);
 				
 		boolean drawCarbon = displayParams.getDrawOption(DrawOptions.DRAW_CARBON);
@@ -1193,8 +1193,16 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 
 			}
 
-			for(SGroup sgroup: untrustedSgroupBrackets){
+			/*for(SGroup sgroup: untrustedSgroupBrackets){
 				Rectangle2D.Float rect = computeBracketCoordsFor(sgroup, bondWidth);
+				if(rect == null){
+					continue;
+				}
+				drawBracketedSgroup(g2, (float) maxX, (float) maxY, (float) minX, (float) minY, centerTransform, solidThin, fsize, sgroup, rect);
+
+			}*/
+			for(SGroup sgroup: untrustedSgroupBrackets){
+				Rectangle2D.Float rect = computeBracketCoordsFor(sgroup, BONDAVG);
 				if(rect == null){
 					continue;
 				}
@@ -1357,13 +1365,17 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		//compute using bounding box
         //GSRS-1635 single atom sgroups have terminal atoms that go beyond
         //computed bracket area so bump up the padding in those cases
-		long numCrossingBonds = cg.getBonds().collect(Collectors.counting());
+		/*long numCrossingBonds = cg.getBonds().collect(Collectors.counting());
 		double paddingFactor=0.005;
 		if(numCrossingBonds >0) {
 			rt = BoundingBox.computePaddedBoundingBoxFor(cg.getAtoms()::iterator, paddingFactor);
 		}else{
 			rt = BoundingBox.computePaddedBoundingBoxFor(cg.getAtoms()::iterator, Math.max(paddingFactor, bondWidth/3));
-		}
+		}*/
+		//long numCrossingBonds = cg.getBonds().collect(Collectors.counting());
+		double paddingFactor=0.005;
+		//bondWidth is really a scaled average bond LENGTH!
+		rt = BoundingBox.computePaddedBoundingBoxFor(cg.getAtoms()::iterator, Math.max(paddingFactor, bondWidth/3));
 
 		
 		Rectangle2D.Float r = new Rectangle2D.Float((float) rt.getX(),
@@ -1544,6 +1556,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		boolean wedgeJoin;
 		boolean drawLastDashLineOnNonSymbols;
 
+		boolean drawStereoBondLabels;
 		Stroke solidREC;
 
 		private void drawBonds(Graphics2DTemp g2, Chemical c, List<double[]> toAdd, Stroke solid, Stroke dashed,
@@ -1788,6 +1801,30 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 					break;
 
 				default:
+				}
+				//TEMP testing ability to draw text
+				if(drawStereoBondLabels && cb.getBondType()== BondType.DOUBLE) {
+
+					String bondStereo =cb.getDoubleBondStereo().name();
+					String bsPieces[] = bondStereo.split("\\_");
+					FontMetrics metrics = g2.getFontMetrics();
+					int labelWidth = metrics.stringWidth(bsPieces[0]);
+					double x = Math.min(cb.getAtom1().getAtomCoordinates().getX(), cb.getAtom2().getAtomCoordinates().getX()) +
+							Math.abs( cb.getAtom1().getAtomCoordinates().getX()-cb.getAtom2().getAtomCoordinates().getX())/2;
+					System.out.printf("atom1 x %.2f atom2 x %.2f middle %.2f\n", cb.getAtom1().getAtomCoordinates().getX(),
+							cb.getAtom2().getAtomCoordinates().getX(), x);
+					double y = Math.min(cb.getAtom1().getAtomCoordinates().getY(), cb.getAtom2().getAtomCoordinates().getY()) + Math.abs( cb.getAtom1().getAtomCoordinates().getY()-cb.getAtom2().getAtomCoordinates().getY())/2;
+					System.out.printf("atom1 y %.2f atom2 y %.2f middle %.2f\n", cb.getAtom1().getAtomCoordinates().getY(),
+							cb.getAtom2().getAtomCoordinates().getY(), y);
+					float fudgeFactor=240;
+					float xPos= (float) (x- labelWidth +1.5* fudgeFactor);
+					float yPos = (float) (y + metrics.getHeight()/2 )+fudgeFactor;
+					System.out.printf("Going to draw string '%s' at %.2f, %.2f\n", bsPieces[0],
+							xPos, yPos);
+					ARGBColor colorBefore= g2.getARGBColor();
+					g2.setColor(new ARGBColor(0, 255, 0, 250));
+					drawString(g2, bsPieces[0], xPos, yPos);
+					g2.setColor(colorBefore);
 				}
 			}
 			

@@ -1,3 +1,5 @@
 .idea
 molwitch-renderer.iml
 /target/
+/images/
+/old_images/

@@ -1,7 +1,7 @@
 /*
  * NCATS-MOLWITCH-RENDERER
  *
- * Copyright 2019 NIH/NCATS
+ * Copyright 2023 NIH/NCATS
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ import java.util.List;
 @Ignore
 public class TestRendering {
 
+    String IMAGE_DIR = "images/";
+
     @Test
     public void renderOverlap() throws Exception{
         ChemicalRenderer renderer = new ChemicalRenderer();
@@ -51,8 +53,49 @@ public class TestRendering {
         renderer.setBackgroundColor(Color.white);
         BufferedImage image=renderer.createImage(c, 600);
 
-        boolean result1 =ImageIO.write(image, "PNG", new File(MolWitch.getModuleName() +"_benzoic_acid4.png"));
+
+        boolean result1 =ImageIO.write(image, "PNG", new File( IMAGE_DIR+MolWitch.getModuleName() +"_benzoic_acid4.png"));
         Assert.assertTrue(result1);
+
+    }
+
+    @Test
+    public void renderMolStereo() throws Exception{
+        ChemicalRenderer renderer = new ChemicalRenderer();
+        renderer.getOptions().setDrawOption(RendererOptions.DrawOptions.DRAW_STEREO_LABELS, true);
+        Chemical c = Chemical.parseMol(new File(getClass().getResource("/usp_steroid.mol").getFile()));
+        renderer.setBackgroundColor(Color.white);
+        BufferedImage image=renderer.createImage(c, 600);
+
+        boolean result1 =ImageIO.write(image, "PNG", new File( IMAGE_DIR+MolWitch.getModuleName() +"_usp_steroid.png"));
+        Assert.assertTrue(result1);
+    }
+
+    /*
+    molecule with 3 bracketed SGroups
+     */
+    @Test
+    public void renderMolWithSequentialBrackets() throws Exception{
+        ChemicalRenderer renderer = new ChemicalRenderer();
+        renderer.getOptions().setDrawOption(RendererOptions.DrawOptions.DRAW_STEREO_LABELS, true);
+        List<String> mols = Arrays.asList("bracket_rendering_example_30-jan-2023.mol");
+        mols.forEach(m->{
+            File molfile = new File(getClass().getResource("/"+m).getFile());
+            if(!molfile.exists()){
+                System.err.println("Error! molfile requested does not exist");
+                Assert.fail("molfile must be readable");
+            }
+            boolean result1 = false;
+            try {
+                Chemical c = Chemical.parseMol(molfile);
+                renderer.setBackgroundColor(Color.white);
+                BufferedImage image=renderer.createImage(c, 600);
+                result1 = ImageIO.write(image, "PNG", new File( IMAGE_DIR+ MolWitch.getModuleName() +"_" + m+".png"));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            Assert.assertTrue(result1);
+        });
 
     }
 

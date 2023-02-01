@@ -1,7 +1,7 @@
 /*
  * NCATS-MOLWITCH-RENDERER
  *
- * Copyright 2019 NIH/NCATS
+ * Copyright 2023 NIH/NCATS
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -90,9 +90,7 @@ public class RendererOptions {
 		DRAW_STEREO_LABELS_PARENTHESES(false, "PROP_KEY_DRAW_STEREO_LABELS_PARENTHESES"),
 		DRAW_STEREO_FORCE_MONOCHROMATIC(false, "PROP_KEY_DRAW_STEREO_FORCE_MONOCHROMATIC"),
 
-		DRAW_SUPERATOMS_AS_LABELS(true, "PROP_KEY_DRAW_SUPERATOMS_AS_LABELS")
-
-			;
+		DRAW_SUPERATOMS_AS_LABELS(true, "PROP_KEY_DRAW_SUPERATOMS_AS_LABELS");
 		
 		private final boolean defaultValue;
 		
