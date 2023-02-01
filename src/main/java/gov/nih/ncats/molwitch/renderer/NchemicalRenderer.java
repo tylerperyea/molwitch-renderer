@@ -243,11 +243,7 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 		
 
 		boolean drawBonds = displayParams.getDrawOption(DrawOptions.DRAW_BONDS);
-		boolean drawStereoBondLabels =displayParams.getDrawOption(DrawOptions.DRAW_BOND_STEREO_LABELS);
-		if(displayParams.getDrawOption(DrawOptions.DRAW_BOND_STEREO_LABELS))  {
-			drawBonds=true;
-		}
-				
+
 		boolean drawSymbols = displayParams.getDrawOption(DrawOptions.DRAW_SYMBOLS);
 				
 		boolean drawCarbon = displayParams.getDrawOption(DrawOptions.DRAW_CARBON);
@@ -1107,7 +1103,6 @@ class NchemicalRenderer extends AbstractChemicalRenderer {
 				bp.drawBonds(g2, c, toAdd, solidHalo, dashed, centerTransform, atompDProps);
 			}
 			bp.highlightHalo = false;
-			bp.drawStereoBondLabels=drawStereoBondLabels;
 			bp.drawBonds(g2, c, toAdd, solid, dashed, centerTransform, atompDProps);
 
 		}
